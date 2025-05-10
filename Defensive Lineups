@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseball Defensive Lineup Optimizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, button {
+            padding: 8px;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Baseball Defensive Lineup Optimizer</h1>
+    <div class="container">
+        <div class="section">
+            <label for="pitcher">Select Pitcher:</label>
+            <select id="pitcher">
+                <option value="Nathan">Nathan</option>
+                <option value="Landon">Landon</option>
+                <option value="Luke">Luke</option>
+                <option value="Dominic">Dominic</option>
+                <option value="Jackie">Jackie</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <h3>Overrides (Optional)</h3>
+            <div id="overrides">
+                <!-- Dynamically populated with position overrides -->
+            </div>
+        </div>
+
+        <button onclick="generateLineup()">Generate Lineup</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Player rankings data
+        const rankings = {
+            "P": {"Nathan": 1, "Landon": 2, "Luke": 3, "Dominic": 4, "Jackie": 5, "Hunter": 6, "Fluitt": 7, 
+                  "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
+            "C": {"Nathan": 1, "Jackie": 2, "Landon": 3, "Dominic": 4, "Luke": 5, "Hunter": 6, "Fluitt": 7, 
+                  "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
+            "SS": {"Nathan": 1, "Luke": 2, "Landon": 3, "Dominic": 4, "Jackie": 5, "Hunter": 6, "Fluitt": 7, 
+                   "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
+            "2B": {"Luke": 1, "Jacob": 2, "Evan": 3, "Landon": 4, "Dominic": 5, "Nathan": 6, "Fluitt": 7, 
+                   "Sproles": 8, "Jackie": 9, "Thomas": 10, "Hunter": 11, "Ben": 12, "Joshua": 13},
+            "3B": {"Landon": 1, "Jackie": 2, "Fluitt": 3, "Luke": 4, "Nathan": 5, "Hunter": 6, "Dominic": 7, 
+                   "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
+            "1B": {"Hunter": 1, "Dominic": 2, "Evan": 3, "Landon": 4, "Luke": 5, "Nathan": 6, "Fluitt": 7, 
+                   "Sproles": 8, "Jackie": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
+            "CF": {"Dominic": 1, "Jackie": 2, "Landon": 3, "Nathan": 4, "Fluitt": 5, "Luke": 6, "Sproles": 7, 
+                   "Evan": 8, "Thomas": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
+            "LF": {"Fluitt": 1, "Sproles": 2, "Thomas": 3, "Joshua": 4, "Nathan": 5, "Luke": 6, "Landon": 7, 
+                   "Dominic": 8, "Jackie": 9, "Hunter": 10, "Evan": 11, "Ben": 12, "Jacob": 13},
+            "RF": {"Fluitt": 1, "Jackie": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, 
+                   "Evan": 8, "Landon": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13}
+        };
+
+        const players = Object.keys(rankings["P"]);
+        const positions = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
+
+        // Dynamically create override dropdowns
+        function populateOverrides() {
+            const overridesDiv = document.getElementById("overrides");
+            overridesDiv.innerHTML = "";
+            positions.forEach(pos => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    <label for="${pos}-override">${pos} Override (optional):</label>
+                    <select id="${pos}-override">
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                `;
+                overridesDiv.appendChild(div);
+            });
+        }
+
+        // Get the best available player for a position
+        function getBestPlayer(position, assignedPlayers) {
+            const availablePlayers = players.filter(p => !assignedPlayers.includes(p));
+            if (!availablePlayers.length) return null;
+            return availablePlayers.reduce((best, player) => 
+                rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
+        }
+
+        // Generate lineup
+        function generateLineup() {
+            const pitcher = document.getElementById("pitcher").value;
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
+            try {
+                const lineup = {"P": pitcher};
+                const assignedPlayers = new Set([pitcher]);
+
+                // Collect overrides
+                const overrides = {};
+                positions.forEach(pos => {
+                    const overridePlayer = document.getElementById(`${pos}-override`).value;
+                    if (overridePlayer) overrides[pos] = overridePlayer;
+                });
+
+                // Special prioritization for Luke as pitcher
+                if (pitcher === "Luke") {
+                    lineup["SS"] = "Nathan";
+                    if (assignedPlayers.has("Nathan")) {
+                        throw new Error("Nathan is already assigned (likely due to override conflict).");
+                    }
+                    assignedPlayers.add("Nathan");
+
+                    lineup["C"] = getBestPlayer("C", assignedPlayers);
+                    if (!lineup["C"]) throw new Error("Not enough players for Catcher.");
+                    assignedPlayers.add(lineup["C"]);
+                } else {
+                    // Default prioritization: P > C > SS > ...
+                    lineup["C"] = getBestPlayer("C", assignedPlayers);
+                    if (!lineup["C"]) throw new Error("Not enough players for Catcher.");
+                    assignedPlayers.add(lineup["C"]);
+
+                    // Assign SS, ensuring Nathan or Luke
+                    const ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
+                    if (!ssCandidates.length) {
+                        // Adjust Catcher to free Nathan or Luke for SS
+                        assignedPlayers.delete(lineup["C"]);
+                        lineup["C"] = getBestPlayer("C", assignedPlayers);
+                        if (!lineup["C"]) throw new Error("Not enough players for Catcher after adjustment.");
+                        assignedPlayers.add(lineup["C"]);
+                        ssCandidates.push(...["Nathan", "Luke"].filter(p => !assignedPlayers.has(p)));
+                        if (!ssCandidates.length) throw new Error("Cannot satisfy Nathan or Luke at SS constraint.");
+                    }
+                    lineup["SS"] = ssCandidates[0];
+                    assignedPlayers.add(lineup["SS"]);
+                }
+
+                // Apply overrides
+                for (const [pos, player] of Object.entries(overrides)) {
+                    if (pos in lineup) {
+                        if (assignedPlayers.has(player)) {
+                            throw new Error(`Override failed: ${player} is already assigned at ${Object.keys(lineup).find(p => lineup[p] === player)}.`);
+                        }
+                        assignedPlayers.delete(lineup[pos]);
+                        lineup[pos] = player;
+                        assignedPlayers.add(player);
+                    }
+                }
+
+                // Fill remaining positions
+                const remainingPositions = ["2B", "3B", "1B", "CF", "LF", "RF"];
+                for (const pos of remainingPositions) {
+                    if (!(pos in lineup)) {
+                        const player = getBestPlayer(pos, assignedPlayers);
+                        if (!player) throw new Error(`Not enough players for ${pos}.`);
+                        lineup[pos] = player;
+                        assignedPlayers.add(player);
+                    }
+                }
+
+                // Verify Nathan or Luke at SS
+                if (!["Nathan", "Luke"].includes(lineup["SS"])) {
+                    throw new Error("Nathan or Luke must be at SS.");
+                }
+
+                // Verify no duplicates
+                if (assignedPlayers.size !== 9) {
+                    throw new Error("Duplicate players detected in lineup.");
+                }
+
+                // Display the lineup
+                outputDiv.innerHTML = "<h3>Lineup:</h3>";
+                for (const [pos, player] of Object.entries(lineup)) {
+                    outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
+                }
+            } catch (error) {
+                outputDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize overrides on page load
+        window.onload = populateOverrides;
+    </script>
+</body>
+</html>
