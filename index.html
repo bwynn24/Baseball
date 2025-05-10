@@ -88,6 +88,13 @@
         </div>
 
         <div class="section">
+            <h3>Overrides (Optional)</h3>
+            <div id="overrides">
+                <!-- Dynamically populated with position overrides -->
+            </div>
+        </div>
+
+        <div class="section">
             <h3>EH / OUT Selections (Optional)</h3>
             <div id="ehOutSelections">
                 <div>
@@ -111,13 +118,6 @@
                         ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                     </select>
                 </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>Overrides (Optional)</h3>
-            <div id="overrides">
-                <!-- Dynamically populated with position overrides -->
             </div>
         </div>
 
@@ -191,7 +191,7 @@
                 rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
         }
 
-        // Draw the baseball diamond with player positions (excluding EH/OUT)
+        // Draw the baseball diamond with player positions and EH/OUT at bottom right
         function drawBaseballDiamond(lineup) {
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
@@ -247,7 +247,7 @@
 
             // Draw player names at their positions (only for on-field positions)
             for (const [pos, player] of Object.entries(lineup)) {
-                if (pos !== "EH/OUT") { // Exclude EH/OUT from visualization
+                if (pos !== "EH/OUT") { // Exclude EH/OUT from main diamond
                     const coords = positionCoords[pos];
                     if (coords) {
                         // Draw a small circle for the position
@@ -263,6 +263,16 @@
                     }
                 }
             }
+
+            // Draw EH/OUT players at bottom right
+            const ehOutPlayers = lineup["EH/OUT"] || [];
+            ctx.fillStyle = "#000000";
+            ctx.textAlign = "right";
+            ctx.fillText("EH/OUT:", 380, 340);
+            ehOutPlayers.forEach((player, index) => {
+                ctx.fillText(player, 380, 350 + (index * 15));
+            });
+            ctx.textAlign = "center"; // Reset text alignment
         }
 
         // Generate lineup with EH/OUT prioritized
@@ -312,6 +322,7 @@
                     ehOutPlayers.add(ehOut3);
                     assignedPlayers.add(ehOut3);
                 }
+                lineup["EH/OUT"] = Array.from(ehOutPlayers); // Store EH/OUT players in lineup for visualization
 
                 // Collect and apply overrides
                 const overrides = {};
@@ -389,7 +400,7 @@
                 }
 
                 // Verify no duplicates and correct number of on-field players
-                const onFieldPlayers = Object.keys(lineup).length;
+                const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
                 if (onFieldPlayers !== 9) {
                     throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
                 }
@@ -400,14 +411,16 @@
                 // Display the lineup as text
                 outputDiv.innerHTML = "<h3>Lineup:</h3>";
                 for (const [pos, player] of Object.entries(lineup)) {
-                    outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
+                    if (pos !== "EH/OUT") {
+                        outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
+                    }
                 }
                 if (ehOutPlayers.size > 0) {
                     outputDiv.innerHTML += "<h3>EH / OUT:</h3>";
                     outputDiv.innerHTML += `<p>${Array.from(ehOutPlayers).join(", ")}</p>`;
                 }
 
-                // Draw the baseball diamond with the lineup (excluding EH/OUT)
+                // Draw the baseball diamond with the lineup
                 drawBaseballDiamond(lineup);
             } catch (error) {
                 console.error("Error in generateLineup:", error);
