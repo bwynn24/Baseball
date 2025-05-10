@@ -131,7 +131,7 @@
 
         // Get the best available player for a position
         function getBestPlayer(position, assignedPlayers) {
-            const availablePlayers = players.filter(p => !assignedPlayers.has(p)); // Fixed: Use has for Set
+            const availablePlayers = players.filter(p => !assignedPlayers.has(p));
             if (!availablePlayers.length) return null;
             return availablePlayers.reduce((best, player) => 
                 rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
@@ -158,26 +158,50 @@
                 if (pitcher === "Luke") {
                     lineup["SS"] = "Nathan";
                     if (assignedPlayers.has("Nathan")) {
-                        throw new Error("Nathan is already assigned (likely due to override conflict).");
+                        throw new Error("Nathan is already assigned as Pitcher (override conflict).");
                     }
                     assignedPlayers.add("Nathan");
 
                     lineup["C"] = getBestPlayer("C", assignedPlayers);
-                    if (!lineup["C"]) throw new Error("Not enough players for Catcher.");
+                    if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
                     assignedPlayers.add(lineup["C"]);
                 } else {
                     // Default prioritization: P > C > SS > ...
                     lineup["C"] = getBestPlayer("C", assignedPlayers);
-                    if (!lineup["C"]) throw new Error("Not enough players for Catcher.");
+                    if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
                     assignedPlayers.add(lineup["C"]);
 
                     // Assign SS, ensuring Nathan or Luke
-                    const ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p)); // Fixed: Use has for Set
+                    let ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
                     if (!ssCandidates.length) {
                         // Adjust Catcher to free Nathan or Luke for SS
                         assignedPlayers.delete(lineup["C"]);
                         lineup["C"] = getBestPlayer("C", assignedPlayers);
-                        if (!lineup["C"]) throw new Error("Not enough players for Catcher after adjustment.");
+                        if (!lineup["C"]) throw new Error("Not enough players available for Catcher after adjustment.");
                         assignedPlayers.add(lineup["C"]);
-                        ssCandidates.push(...["Nathan", "Luke"].filter(p => !assignedPlayers.has(p))); // Fixed: Use has for Set
-                        if (!ssCandidates.length) throw new Error("Cannot satisfy Nathan or Luke at SS constraint
+                        ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
+                        if (!ssCandidates.length) throw new Error("Cannot satisfy Nathan or Luke at SS constraint.");
+                    }
+                    lineup["SS"] = ssCandidates[0];
+                    assignedPlayers.add(lineup["SS"]);
+                }
+
+                // Apply overrides
+                for (const [pos, player] of Object.entries(overrides)) {
+                    if (pos in lineup) {
+                        if (assignedPlayers.has(player)) {
+                            const existingPos = Object.keys(lineup).find(p => lineup[p] === player);
+                            throw new Error(`Cannot override ${pos} with ${player}: ${player} is already assigned to ${existingPos}.`);
+                        }
+                        assignedPlayers.delete(lineup[pos]);
+                        lineup[pos] = player;
+                        assignedPlayers.add(player);
+                    }
+                }
+
+                // Fill remaining positions
+                const remainingPositions = ["2B", "3B", "1B", "CF", "LF", "RF"];
+                for (const pos of remainingPositions) {
+                    if (!(pos in lineup)) {
+                        const player = getBestPlayer(pos, assignedPlayers);
+                        if (!player
