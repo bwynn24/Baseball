@@ -150,7 +150,7 @@
                 rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
         }
 
-        // Generate lineup
+        // Generate lineup with overrides prioritized
         function generateLineup() {
             try {
                 console.log("generateLineup called");
@@ -164,65 +164,69 @@
                 const lineup = {"P": pitcher};
                 const assignedPlayers = new Set([pitcher]);
 
-                // Collect overrides
+                // Collect and apply overrides first
                 const overrides = {};
                 positions.forEach(pos => {
                     const overrideElement = document.getElementById(`${pos}-override`);
                     if (overrideElement) {
                         const overridePlayer = overrideElement.value;
-                        if (overridePlayer) overrides[pos] = overridePlayer;
+                        if (overridePlayer) {
+                            if (assignedPlayers.has(overridePlayer)) {
+                                const existingPos = Object.keys(lineup).find(p => lineup[p] === overridePlayer);
+                                throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to ${existingPos}.`);
+                            }
+                            lineup[pos] = overridePlayer;
+                            assignedPlayers.add(overridePlayer);
+                            overrides[pos] = overridePlayer;
+                        }
                     }
                 });
 
                 // Special prioritization for Luke as pitcher
                 if (pitcher === "Luke") {
-                    lineup["SS"] = "Nathan";
-                    if (assignedPlayers.has("Nathan")) {
-                        throw new Error("Nathan is already assigned as Pitcher (override conflict).");
+                    if (!lineup["SS"] || lineup["SS"] !== "Nathan") {
+                        if (assignedPlayers.has("Nathan")) {
+                            throw new Error("Nathan is already assigned (override conflict with SS).");
+                        }
+                        lineup["SS"] = "Nathan";
+                        assignedPlayers.add("Nathan");
                     }
-                    assignedPlayers.add("Nathan");
 
-                    lineup["C"] = getBestPlayer("C", assignedPlayers);
-                    if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
-                    assignedPlayers.add(lineup["C"]);
+                    if (!lineup["C"]) {
+                        lineup["C"] = getBestPlayer("C", assignedPlayers);
+                        if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
+                        assignedPlayers.add(lineup["C"]);
+                    }
                 } else {
                     // Default prioritization: P > C > SS > ...
-                    lineup["C"] = getBestPlayer("C", assignedPlayers);
-                    if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
-                    assignedPlayers.add(lineup["C"]);
-
-                    // Assign SS, ensuring Nathan or Luke
-                    let ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
-                    if (!ssCandidates.length) {
-                        // Adjust Catcher to free Nathan or Luke for SS
-                        assignedPlayers.delete(lineup["C"]);
+                    if (!lineup["C"]) {
                         lineup["C"] = getBestPlayer("C", assignedPlayers);
-                        if (!lineup["C"]) throw new Error("Not enough players available for Catcher after adjustment.");
+                        if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
                         assignedPlayers.add(lineup["C"]);
-                        ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
-                        if (!ssCandidates.length) throw new Error("Cannot satisfy Nathan or Luke at SS constraint.");
                     }
-                    lineup["SS"] = ssCandidates[0];
-                    assignedPlayers.add(lineup["SS"]);
-                }
 
-                // Apply overrides
-                for (const [pos, player] of Object.entries(overrides)) {
-                    if (pos in lineup) {
-                        if (assignedPlayers.has(player)) {
-                            const existingPos = Object.keys(lineup).find(p => lineup[p] === player);
-                            throw new Error(`Cannot override ${pos} with ${player}: ${player} is already assigned to ${existingPos}.`);
+                    if (!lineup["SS"]) {
+                        // Assign SS, ensuring Nathan or Luke
+                        let ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
+                        if (!ssCandidates.length) {
+                            // Adjust Catcher to free Nathan or Luke for SS
+                            assignedPlayers.delete(lineup["C"]);
+                            lineup["C"] = getBestPlayer("C", assignedPlayers);
+                            if (!lineup["C"]) throw new Error("Not enough players available for Catcher after adjustment.");
+                            assignedPlayers.add(lineup["C"]);
+                            ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
+                            if (!ssCandidates.length) throw new Error("Cannot satisfy Nathan or Luke at SS constraint.");
                         }
-                        assignedPlayers.delete(lineup[pos]);
-                        lineup[pos] = player;
-                        assignedPlayers.add(player);
+                        lineup["SS"] = ssCandidates[0];
+                        assignedPlayers.add(lineup["SS"]);
                     }
                 }
 
-                // Fill remaining positions
-                const remainingPositions = ["2B", "3B", "1B", "CF", "LF", "RF"];
-                for (const pos of remainingPositions) {
-                    if (!(pos in lineup)) {
+                // Fill remaining positions based on prioritization
+                const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
+                const priorityOrder = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
+                for (const pos of priorityOrder) {
+                    if (!lineup[pos] && remainingPositions.includes(pos)) {
                         const player = getBestPlayer(pos, assignedPlayers);
                         if (!player) throw new Error(`Not enough players available for ${pos}.`);
                         lineup[pos] = player;
