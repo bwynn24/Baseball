@@ -58,6 +58,11 @@
             color: red;
             font-weight: bold;
         }
+        #fieldCanvas {
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +76,14 @@
                 <option value="Luke">Luke</option>
                 <option value="Dominic">Dominic</option>
                 <option value="Jackie">Jackie</option>
+                <option value="Hunter">Hunter</option>
+                <option value="Fluitt">Fluitt</option>
+                <option value="Sproles">Sproles</option>
+                <option value="Evan">Evan</option>
+                <option value="Thomas">Thomas</option>
+                <option value="Ben">Ben</option>
+                <option value="Jacob">Jacob</option>
+                <option value="Joshua">Joshua</option>
             </select>
         </div>
 
@@ -84,6 +97,7 @@
         <button onclick="generateLineup()">Generate Lineup</button>
 
         <div id="output"></div>
+        <canvas id="fieldCanvas" width="400" height="400"></canvas>
     </div>
 
     <script>
@@ -148,6 +162,78 @@
             if (!availablePlayers.length) return null;
             return availablePlayers.reduce((best, player) => 
                 rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
+        }
+
+        // Draw the baseball diamond with player positions
+        function drawBaseballDiamond(lineup) {
+            const canvas = document.getElementById("fieldCanvas");
+            const ctx = canvas.getContext("2d");
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Set styles
+            ctx.font = "12px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // Draw the field (green background)
+            ctx.fillStyle = "#2ecc71"; // Green for the field
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the infield diamond (rotated square)
+            ctx.fillStyle = "#d2b48c"; // Tan for the infield
+            ctx.beginPath();
+            ctx.moveTo(200, 100); // Top (2B)
+            ctx.lineTo(300, 200); // Right (1B)
+            ctx.lineTo(200, 300); // Bottom (Home)
+            ctx.lineTo(100, 200); // Left (3B)
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw the pitcher's mound (circle)
+            ctx.fillStyle = "#d2b48c";
+            ctx.beginPath();
+            ctx.arc(200, 200, 10, 0, Math.PI * 2); // Center of the diamond
+            ctx.fill();
+
+            // Draw the outfield arc
+            ctx.beginPath();
+            ctx.arc(200, 200, 150, Math.PI, 0); // Semicircle for outfield
+            ctx.stroke();
+
+            // Define positions on the canvas (x, y coordinates)
+            const positionCoords = {
+                "P": { x: 200, y: 200 },  // Pitcher (center)
+                "C": { x: 200, y: 320 },  // Catcher (behind home)
+                "1B": { x: 280, y: 220 }, // First Base
+                "2B": { x: 200, y: 120 }, // Second Base
+                "3B": { x: 120, y: 220 }, // Third Base
+                "SS": { x: 160, y: 160 }, // Shortstop
+                "LF": { x: 100, y: 100 }, // Left Field
+                "CF": { x: 200, y: 50 },  // Center Field
+                "RF": { x: 300, y: 100 }  // Right Field
+            };
+
+            // Draw player names at their positions
+            for (const [pos, player] of Object.entries(lineup)) {
+                const coords = positionCoords[pos];
+                if (coords) {
+                    // Draw a small circle for the position
+                    ctx.fillStyle = "#ffffff";
+                    ctx.beginPath();
+                    ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Draw the position label and player name
+                    ctx.fillStyle = "#000000";
+                    ctx.fillText(pos, coords.x, coords.y - 20); // Position label above
+                    ctx.fillText(player, coords.x, coords.y + 20); // Player name below
+                }
+            }
         }
 
         // Generate lineup with overrides prioritized
@@ -244,11 +330,14 @@
                     throw new Error("Duplicate players detected in lineup.");
                 }
 
-                // Display the lineup
+                // Display the lineup as text
                 outputDiv.innerHTML = "<h3>Lineup:</h3>";
                 for (const [pos, player] of Object.entries(lineup)) {
                     outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
                 }
+
+                // Draw the baseball diamond with the lineup
+                drawBaseballDiamond(lineup);
             } catch (error) {
                 console.error("Error in generateLineup:", error);
                 const outputDiv = document.getElementById("output");
