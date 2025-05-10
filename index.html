@@ -88,6 +88,33 @@
         </div>
 
         <div class="section">
+            <h3>EH / OUT Selections (Optional)</h3>
+            <div id="ehOutSelections">
+                <div>
+                    <label for="ehOut1">EH / OUT 1:</label>
+                    <select id="ehOut1">
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                </div>
+                <div>
+                    <label for="ehOut2">EH / OUT 2:</label>
+                    <select id="ehOut2">
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                </div>
+                <div>
+                    <label for="ehOut3">EH / OUT 3:</label>
+                    <select id="ehOut3">
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
             <h3>Overrides (Optional)</h3>
             <div id="overrides">
                 <!-- Dynamically populated with position overrides -->
@@ -119,8 +146,8 @@
                    "Evan": 8, "Thomas": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
             "LF": {"Fluitt": 1, "Sproles": 2, "Thomas": 3, "Joshua": 4, "Nathan": 5, "Luke": 6, "Landon": 7, 
                    "Dominic": 8, "Jackie": 9, "Hunter": 10, "Evan": 11, "Ben": 12, "Jacob": 13},
-            "RF": {"Fluitt": 2, "Jackie": 3, "Thomas": 10, "Nathan": 5, "Luke": 6, "Dominic": 7, "Sproles": 4, 
-                   "Evan": 11, "Landon": 8, "Hunter": 9, "Ben": 12, "Jacob": 1, "Joshua": 13}
+            "RF": {"Fluitt": 2, "Jackie": 3, "Thomas": 11, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, 
+                   "Evan": 10, "Landon": 9, "Hunter": 8, "Ben": 12, "Jacob": 1, "Joshua": 13}
         };
 
         const players = Object.keys(rankings["P"]);
@@ -164,7 +191,7 @@
                 rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
         }
 
-        // Draw the baseball diamond with player positions
+        // Draw the baseball diamond with player positions (excluding EH/OUT)
         function drawBaseballDiamond(lineup) {
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
@@ -218,25 +245,27 @@
                 "RF": { x: 300, y: 100 }  // Right Field
             };
 
-            // Draw player names at their positions
+            // Draw player names at their positions (only for on-field positions)
             for (const [pos, player] of Object.entries(lineup)) {
-                const coords = positionCoords[pos];
-                if (coords) {
-                    // Draw a small circle for the position
-                    ctx.fillStyle = "#ffffff";
-                    ctx.beginPath();
-                    ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
-                    ctx.fill();
+                if (pos !== "EH/OUT") { // Exclude EH/OUT from visualization
+                    const coords = positionCoords[pos];
+                    if (coords) {
+                        // Draw a small circle for the position
+                        ctx.fillStyle = "#ffffff";
+                        ctx.beginPath();
+                        ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
+                        ctx.fill();
 
-                    // Draw the position label and player name
-                    ctx.fillStyle = "#000000";
-                    ctx.fillText(pos, coords.x, coords.y - 20); // Position label above
-                    ctx.fillText(player, coords.x, coords.y + 20); // Player name below
+                        // Draw the position label and player name
+                        ctx.fillStyle = "#000000";
+                        ctx.fillText(pos, coords.x, coords.y - 20); // Position label above
+                        ctx.fillText(player, coords.x, coords.y + 20); // Player name below
+                    }
                 }
             }
         }
 
-        // Generate lineup with overrides prioritized
+        // Generate lineup with EH/OUT prioritized
         function generateLineup() {
             try {
                 console.log("generateLineup called");
@@ -250,7 +279,41 @@
                 const lineup = {"P": pitcher};
                 const assignedPlayers = new Set([pitcher]);
 
-                // Collect and apply overrides first
+                // Collect EH/OUT selections first
+                const ehOutPlayers = new Set();
+                const ehOut1 = document.getElementById("ehOut1").value;
+                const ehOut2 = document.getElementById("ehOut2").value;
+                const ehOut3 = document.getElementById("ehOut3").value;
+
+                if (ehOut1) {
+                    if (ehOut1 === pitcher) {
+                        throw new Error(`Cannot assign ${ehOut1} as EH/OUT: they are already selected as Pitcher.`);
+                    }
+                    ehOutPlayers.add(ehOut1);
+                    assignedPlayers.add(ehOut1);
+                }
+                if (ehOut2) {
+                    if (ehOut2 === pitcher) {
+                        throw new Error(`Cannot assign ${ehOut2} as EH/OUT: they are already selected as Pitcher.`);
+                    }
+                    if (ehOutPlayers.has(ehOut2)) {
+                        throw new Error(`Cannot assign ${ehOut2} as EH/OUT: they are already selected as EH/OUT.`);
+                    }
+                    ehOutPlayers.add(ehOut2);
+                    assignedPlayers.add(ehOut2);
+                }
+                if (ehOut3) {
+                    if (ehOut3 === pitcher) {
+                        throw new Error(`Cannot assign ${ehOut3} as EH/OUT: they are already selected as Pitcher.`);
+                    }
+                    if (ehOutPlayers.has(ehOut3)) {
+                        throw new Error(`Cannot assign ${ehOut3} as EH/OUT: they are already selected as EH/OUT.`);
+                    }
+                    ehOutPlayers.add(ehOut3);
+                    assignedPlayers.add(ehOut3);
+                }
+
+                // Collect and apply overrides
                 const overrides = {};
                 positions.forEach(pos => {
                     const overrideElement = document.getElementById(`${pos}-override`);
@@ -258,7 +321,7 @@
                         const overridePlayer = overrideElement.value;
                         if (overridePlayer) {
                             if (assignedPlayers.has(overridePlayer)) {
-                                const existingPos = Object.keys(lineup).find(p => lineup[p] === overridePlayer);
+                                const existingPos = Object.keys(lineup).find(p => lineup[p] === overridePlayer) || "EH/OUT";
                                 throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to ${existingPos}.`);
                             }
                             lineup[pos] = overridePlayer;
@@ -272,7 +335,7 @@
                 if (pitcher === "Luke") {
                     if (!lineup["SS"] || lineup["SS"] !== "Nathan") {
                         if (assignedPlayers.has("Nathan")) {
-                            throw new Error("Nathan is already assigned (override conflict with SS).");
+                            throw new Error("Nathan is already assigned (override or EH/OUT conflict with SS).");
                         }
                         lineup["SS"] = "Nathan";
                         assignedPlayers.add("Nathan");
@@ -325,9 +388,13 @@
                     throw new Error("Nathan or Luke must be at SS.");
                 }
 
-                // Verify no duplicates
-                if (assignedPlayers.size !== 9) {
-                    throw new Error("Duplicate players detected in lineup.");
+                // Verify no duplicates and correct number of on-field players
+                const onFieldPlayers = Object.keys(lineup).length;
+                if (onFieldPlayers !== 9) {
+                    throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
+                }
+                if (assignedPlayers.size !== 9 + ehOutPlayers.size) {
+                    throw new Error("Duplicate players detected in lineup or EH/OUT assignments.");
                 }
 
                 // Display the lineup as text
@@ -335,8 +402,12 @@
                 for (const [pos, player] of Object.entries(lineup)) {
                     outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
                 }
+                if (ehOutPlayers.size > 0) {
+                    outputDiv.innerHTML += "<h3>EH / OUT:</h3>";
+                    outputDiv.innerHTML += `<p>${Array.from(ehOutPlayers).join(", ")}</p>`;
+                }
 
-                // Draw the baseball diamond with the lineup
+                // Draw the baseball diamond with the lineup (excluding EH/OUT)
                 drawBaseballDiamond(lineup);
             } catch (error) {
                 console.error("Error in generateLineup:", error);
@@ -351,6 +422,18 @@
         document.addEventListener("DOMContentLoaded", () => {
             console.log("DOMContentLoaded event fired");
             populateOverrides();
+
+            // Dynamically populate EH/OUT dropdowns
+            const ehOutDiv = document.getElementById("ehOutSelections");
+            if (ehOutDiv) {
+                const selects = ehOutDiv.getElementsByTagName("select");
+                for (let select of selects) {
+                    select.innerHTML = `
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    `;
+                }
+            }
         });
     </script>
 </body>
