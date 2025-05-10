@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baseball Defensive Lineup Optimizer</title>
+    <title>Defensive Lineup Optimizer</title>
     <style>
         :root {
             /* Light theme (default) */
@@ -110,9 +110,8 @@
         }
 
         .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            display: block;
+            margin: 10px auto;
             padding: 8px 16px;
             background-color: var(--button-background);
             color: white;
@@ -129,12 +128,13 @@
     </style>
 </head>
 <body>
+    <h1>Defensive Lineup Optimizer</h1>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-    <h1>Baseball Defensive Lineup Optimizer</h1>
     <div class="container">
         <div class="section">
             <label for="pitcher">Select Pitcher:</label>
             <select id="pitcher">
+                <option value="">None</option>
                 <option value="Nathan">Nathan</option>
                 <option value="Landon">Landon</option>
                 <option value="Luke">Luke</option>
@@ -363,6 +363,11 @@
                     throw new Error("Output div not found in the DOM.");
                 }
                 outputDiv.innerHTML = "";
+
+                // Check if a pitcher is selected
+                if (!pitcher) {
+                    throw new Error("Please select a Pitcher to generate the lineup.");
+                }
 
                 const lineup = {"P": pitcher};
                 const assignedPlayers = new Set([pitcher]);
