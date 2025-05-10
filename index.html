@@ -114,19 +114,32 @@
 
         // Dynamically create override dropdowns
         function populateOverrides() {
-            const overridesDiv = document.getElementById("overrides");
-            overridesDiv.innerHTML = "";
-            positions.forEach(pos => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                    <label for="${pos}-override">${pos} Override (optional):</label>
-                    <select id="${pos}-override">
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                `;
-                overridesDiv.appendChild(div);
-            });
+            try {
+                console.log("populateOverrides called");
+                const overridesDiv = document.getElementById("overrides");
+                if (!overridesDiv) {
+                    throw new Error("Overrides div not found in the DOM.");
+                }
+                overridesDiv.innerHTML = "";
+                positions.forEach(pos => {
+                    console.log(`Creating dropdown for ${pos}`);
+                    const div = document.createElement("div");
+                    div.innerHTML = `
+                        <label for="${pos}-override">${pos} Override (optional):</label>
+                        <select id="${pos}-override">
+                            <option value="">None</option>
+                            ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                        </select>
+                    `;
+                    overridesDiv.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Error in populateOverrides:", error);
+                const outputDiv = document.getElementById("output");
+                if (outputDiv) {
+                    outputDiv.innerHTML = `<p class="error">Error initializing overrides: ${error.message}</p>`;
+                }
+            }
         }
 
         // Get the best available player for a position
@@ -139,19 +152,26 @@
 
         // Generate lineup
         function generateLineup() {
-            const pitcher = document.getElementById("pitcher").value;
-            const outputDiv = document.getElementById("output");
-            outputDiv.innerHTML = "";
-
             try {
+                console.log("generateLineup called");
+                const pitcher = document.getElementById("pitcher").value;
+                const outputDiv = document.getElementById("output");
+                if (!outputDiv) {
+                    throw new Error("Output div not found in the DOM.");
+                }
+                outputDiv.innerHTML = "";
+
                 const lineup = {"P": pitcher};
                 const assignedPlayers = new Set([pitcher]);
 
                 // Collect overrides
                 const overrides = {};
                 positions.forEach(pos => {
-                    const overridePlayer = document.getElementById(`${pos}-override`).value;
-                    if (overridePlayer) overrides[pos] = overridePlayer;
+                    const overrideElement = document.getElementById(`${pos}-override`);
+                    if (overrideElement) {
+                        const overridePlayer = overrideElement.value;
+                        if (overridePlayer) overrides[pos] = overridePlayer;
+                    }
                 });
 
                 // Special prioritization for Luke as pitcher
@@ -204,4 +224,41 @@
                 for (const pos of remainingPositions) {
                     if (!(pos in lineup)) {
                         const player = getBestPlayer(pos, assignedPlayers);
-                        if (!player
+                        if (!player) throw new Error(`Not enough players available for ${pos}.`);
+                        lineup[pos] = player;
+                        assignedPlayers.add(player);
+                    }
+                }
+
+                // Verify Nathan or Luke at SS
+                if (!["Nathan", "Luke"].includes(lineup["SS"])) {
+                    throw new Error("Nathan or Luke must be at SS.");
+                }
+
+                // Verify no duplicates
+                if (assignedPlayers.size !== 9) {
+                    throw new Error("Duplicate players detected in lineup.");
+                }
+
+                // Display the lineup
+                outputDiv.innerHTML = "<h3>Lineup:</h3>";
+                for (const [pos, player] of Object.entries(lineup)) {
+                    outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
+                }
+            } catch (error) {
+                console.error("Error in generateLineup:", error);
+                const outputDiv = document.getElementById("output");
+                if (outputDiv) {
+                    outputDiv.innerHTML = `<p class="error">Error generating lineup: ${error.message}</p>`;
+                }
+            }
+        }
+
+        // Initialize overrides when the DOM is loaded
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOMContentLoaded event fired");
+            populateOverrides();
+        });
+    </script>
+</body>
+</html>
