@@ -146,8 +146,8 @@
                    "Evan": 8, "Thomas": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
             "LF": {"Fluitt": 1, "Sproles": 2, "Thomas": 3, "Joshua": 4, "Nathan": 5, "Luke": 6, "Landon": 7, 
                    "Dominic": 8, "Jackie": 9, "Hunter": 10, "Evan": 11, "Ben": 12, "Jacob": 13},
-            "RF": {"Fluitt": 2, "Jackie": 3, "Thomas": 11, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, 
-                   "Evan": 10, "Landon": 8, "Hunter": 9, "Ben": 12, "Jacob": 1, "Joshua": 13}
+            "RF": {"Fluitt": 1, "Jackie": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, 
+                   "Evan": 8, "Landon": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13}
         };
 
         const players = Object.keys(rankings["P"]);
@@ -275,7 +275,7 @@
             ctx.textAlign = "center"; // Reset text alignment
         }
 
-        // Generate lineup with EH/OUT prioritized
+        // Generate lineup with updated prioritization: EH/OUT > SS (Nathan/Luke) > P > C > ...
         function generateLineup() {
             try {
                 console.log("generateLineup called");
@@ -289,7 +289,7 @@
                 const lineup = {"P": pitcher};
                 const assignedPlayers = new Set([pitcher]);
 
-                // Collect EH/OUT selections first
+                // Step 1: Collect EH/OUT selections first
                 const ehOutPlayers = new Set();
                 const ehOut1 = document.getElementById("ehOut1").value;
                 const ehOut2 = document.getElementById("ehOut2").value;
@@ -322,9 +322,9 @@
                     ehOutPlayers.add(ehOut3);
                     assignedPlayers.add(ehOut3);
                 }
-                lineup["EH/OUT"] = Array.from(ehOutPlayers); // Store EH/OUT players in lineup for visualization
+                lineup["EH/OUT"] = Array.from(ehOutPlayers);
 
-                // Collect and apply overrides
+                // Step 2: Collect overrides (but apply them after SS prioritization if needed)
                 const overrides = {};
                 positions.forEach(pos => {
                     const overrideElement = document.getElementById(`${pos}-override`);
@@ -335,54 +335,37 @@
                                 const existingPos = Object.keys(lineup).find(p => lineup[p] === overridePlayer) || "EH/OUT";
                                 throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to ${existingPos}.`);
                             }
-                            lineup[pos] = overridePlayer;
-                            assignedPlayers.add(overridePlayer);
                             overrides[pos] = overridePlayer;
                         }
                     }
                 });
 
-                // Special prioritization for Luke as pitcher
-                if (pitcher === "Luke") {
-                    if (!lineup["SS"] || lineup["SS"] !== "Nathan") {
-                        if (assignedPlayers.has("Nathan")) {
-                            throw new Error("Nathan is already assigned (override or EH/OUT conflict with SS).");
-                        }
-                        lineup["SS"] = "Nathan";
-                        assignedPlayers.add("Nathan");
+                // Step 3: Prioritize SS (Nathan/Luke rule) immediately after EH/OUT
+                if (!overrides["SS"]) { // Only apply Nathan/Luke rule if SS isn't overridden
+                    let ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
+                    if (!ssCandidates.length) {
+                        throw new Error("Cannot satisfy Nathan or Luke at SS: both are already assigned (likely to EH/OUT).");
                     }
-
-                    if (!lineup["C"]) {
-                        lineup["C"] = getBestPlayer("C", assignedPlayers);
-                        if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
-                        assignedPlayers.add(lineup["C"]);
-                    }
-                } else {
-                    // Default prioritization: P > C > SS > ...
-                    if (!lineup["C"]) {
-                        lineup["C"] = getBestPlayer("C", assignedPlayers);
-                        if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
-                        assignedPlayers.add(lineup["C"]);
-                    }
-
-                    if (!lineup["SS"]) {
-                        // Assign SS, ensuring Nathan or Luke
-                        let ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
-                        if (!ssCandidates.length) {
-                            // Adjust Catcher to free Nathan or Luke for SS
-                            assignedPlayers.delete(lineup["C"]);
-                            lineup["C"] = getBestPlayer("C", assignedPlayers);
-                            if (!lineup["C"]) throw new Error("Not enough players available for Catcher after adjustment.");
-                            assignedPlayers.add(lineup["C"]);
-                            ssCandidates = ["Nathan", "Luke"].filter(p => !assignedPlayers.has(p));
-                            if (!ssCandidates.length) throw new Error("Cannot satisfy Nathan or Luke at SS constraint.");
-                        }
-                        lineup["SS"] = ssCandidates[0];
-                        assignedPlayers.add(lineup["SS"]);
-                    }
+                    lineup["SS"] = ssCandidates[0]; // Nathan if Luke is in EH/OUT, or Luke if Nathan is in EH/OUT
+                    assignedPlayers.add(lineup["SS"]);
                 }
 
-                // Fill remaining positions based on prioritization
+                // Step 4: Apply overrides for remaining positions
+                positions.forEach(pos => {
+                    if (pos !== "SS" && overrides[pos]) { // Skip SS since we handled it above
+                        lineup[pos] = overrides[pos];
+                        assignedPlayers.add(overrides[pos]);
+                    }
+                });
+
+                // Step 5: Assign Catcher if not overridden
+                if (!lineup["C"]) {
+                    lineup["C"] = getBestPlayer("C", assignedPlayers);
+                    if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
+                    assignedPlayers.add(lineup["C"]);
+                }
+
+                // Step 6: Fill remaining positions based on prioritization
                 const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
                 const priorityOrder = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
                 for (const pos of priorityOrder) {
@@ -394,12 +377,12 @@
                     }
                 }
 
-                // Verify Nathan or Luke at SS
+                // Step 7: Verify Nathan or Luke at SS
                 if (!["Nathan", "Luke"].includes(lineup["SS"])) {
                     throw new Error("Nathan or Luke must be at SS.");
                 }
 
-                // Verify no duplicates and correct number of on-field players
+                // Step 8: Verify no duplicates and correct number of on-field players
                 const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
                 if (onFieldPlayers !== 9) {
                     throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
@@ -408,7 +391,7 @@
                     throw new Error("Duplicate players detected in lineup or EH/OUT assignments.");
                 }
 
-                // Display the lineup as text
+                // Step 9: Display the lineup as text
                 outputDiv.innerHTML = "<h3>Lineup:</h3>";
                 for (const [pos, player] of Object.entries(lineup)) {
                     if (pos !== "EH/OUT") {
@@ -420,7 +403,7 @@
                     outputDiv.innerHTML += `<p>${Array.from(ehOutPlayers).join(", ")}</p>`;
                 }
 
-                // Draw the baseball diamond with the lineup
+                // Step 10: Draw the baseball diamond with the lineup
                 drawBaseballDiamond(lineup);
             } catch (error) {
                 console.error("Error in generateLineup:", error);
