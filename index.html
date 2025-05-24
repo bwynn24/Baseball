@@ -37,7 +37,6 @@
             background-color: var(--background-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
-            position: relative; /* For positioning the timestamp */
         }
 
         h1 {
@@ -130,18 +129,17 @@
         }
 
         .timestamp {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            text-align: center;
             font-size: 12px;
             color: var(--timestamp-color);
             transition: color 0.3s;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="timestamp">Last Logic Update: 05:37 PM CDT, Friday, May 23, 2025</div>
     <h1>Defensive Lineup Optimizer</h1>
+    <div class="timestamp">Last Logic Update: 05:37 PM CDT, Friday, May 23, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
