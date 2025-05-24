@@ -280,8 +280,8 @@
                 rankings[position][player] < rankings[position][best] ? player : best, candidates[0]);
         }
 
-        // Draw the baseball diamond with player positions and EH/OUT at bottom right
-        function drawBaseballDiamond(lineup) {
+        // Draw the baseball diamond with player positions, EH/OUT, and Not Selected at bottom right
+        function drawBaseballDiamond(lineup, notSelectedPlayers) {
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
 
@@ -353,14 +353,26 @@
                 }
             }
 
-            // Draw EH/OUT players at bottom right
-            const ehOutPlayers = lineup["EH/OUT"] || [];
+            // Draw EH/OUT and Not Selected players at bottom right
             ctx.fillStyle = "#000000";
             ctx.textAlign = "right";
+            
+            // Draw EH/OUT players
+            const ehOutPlayers = lineup["EH/OUT"] || [];
             ctx.fillText("EH/OUT:", 380, 340);
             ehOutPlayers.forEach((player, index) => {
                 ctx.fillText(player, 380, 350 + (index * 15));
             });
+
+            // Draw Not Selected players below EH/OUT with a small gap
+            if (notSelectedPlayers.length > 0) {
+                const startY = 350 + (ehOutPlayers.length * 15) + 15; // Start 15px below the last EH/OUT entry
+                ctx.fillText("Not Selected:", 380, startY);
+                notSelectedPlayers.forEach((player, index) => {
+                    ctx.fillText(player, 380, startY + 10 + (index * 15));
+                });
+            }
+
             ctx.textAlign = "center"; // Reset text alignment
         }
 
@@ -442,7 +454,10 @@
                     }
                 }
 
-                // Step 6: Verify correct number of on-field players
+                // Step 6: Compute not selected players
+                const notSelectedPlayers = players.filter(p => !assignedPlayers.has(p));
+
+                // Step 7: Verify correct number of on-field players
                 const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
                 if (onFieldPlayers !== 9) {
                     throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
@@ -451,7 +466,7 @@
                     throw new Error("Duplicate players detected in lineup or EH/OUT assignments.");
                 }
 
-                // Step 7: Display the lineup as text
+                // Step 8: Display the lineup as text
                 outputDiv.innerHTML = "<h3>Lineup:</h3>";
                 for (const [pos, player] of Object.entries(lineup)) {
                     if (pos !== "EH/OUT") {
@@ -463,8 +478,8 @@
                     outputDiv.innerHTML += `<p>${Array.from(ehOutPlayers).join(", ")}</p>`;
                 }
 
-                // Step 8: Draw the baseball diamond with the lineup
-                drawBaseballDiamond(lineup);
+                // Step 9: Draw the baseball diamond with the lineup and not selected players
+                drawBaseballDiamond(lineup, notSelectedPlayers);
             } catch (error) {
                 console.error("Error in generateLineup:", error);
                 const outputDiv = document.getElementById("output");
