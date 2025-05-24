@@ -139,7 +139,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 10:17 PM CDT, Friday, May 23, 2025</div>
+    <div class="timestamp">Last Logic Update: 10:50 PM CDT, Friday, May 23, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -193,13 +193,20 @@
                         ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                     </select>
                 </div>
+                <div>
+                    <label for="ehOut4">EH / OUT 4:</label>
+                    <select id="ehOut4">
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                </div>
             </div>
         </div>
 
         <button onclick="generateLineup()">Generate Lineup</button>
 
         <div id="output"></div>
-        <canvas id="fieldCanvas" width="400" height="500"></canvas> <!-- Increased height to 500px -->
+        <canvas id="fieldCanvas" width="400" height="500"></canvas>
     </div>
 
     <script>
@@ -356,9 +363,9 @@
             // Draw EH/OUT players (exactly 4) at bottom right with sufficient space
             ctx.fillStyle = "#000000";
             ctx.textAlign = "right";
-            ctx.fillText("EH/OUT:", 380, 400); // Moved lower to ensure space for 4 players
+            ctx.fillText("EH/OUT:", 380, 400);
             ehOutPlayers.slice(0, 4).forEach((player, index) => {
-                ctx.fillText(player, 380, 420 + (index * 15)); // Start at y=420 with 15px spacing
+                ctx.fillText(player, 380, 420 + (index * 15));
             });
             ctx.textAlign = "center"; // Reset text alignment
         }
@@ -387,7 +394,8 @@
                 const ehOutSelections = [
                     document.getElementById("ehOut1").value,
                     document.getElementById("ehOut2").value,
-                    document.getElementById("ehOut3").value
+                    document.getElementById("ehOut3").value,
+                    document.getElementById("ehOut4").value // Added EH/OUT 4
                 ];
 
                 for (let i = 0; i < ehOutSelections.length; i++) {
