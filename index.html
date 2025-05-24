@@ -139,7 +139,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 05:37 PM CDT, Friday, May 23, 2025</div>
+    <div class="timestamp">Last Logic Update: 09:21 PM CDT, Friday, May 23, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -280,8 +280,8 @@
                 rankings[position][player] < rankings[position][best] ? player : best, candidates[0]);
         }
 
-        // Draw the baseball diamond with player positions and EH/OUT (up to 4 players) at bottom right
-        function drawBaseballDiamond(lineup) {
+        // Draw the baseball diamond with player positions, EH/OUT, and Not Selected at bottom right
+        function drawBaseballDiamond(lineup, notSelectedPlayers) {
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
 
@@ -353,16 +353,26 @@
                 }
             }
 
-            // Draw EH/OUT players (up to 4) at bottom right
-            const ehOutPlayers = lineup["EH/OUT"] || [];
+            // Draw EH/OUT and Not Selected players at bottom right
             ctx.fillStyle = "#000000";
             ctx.textAlign = "right";
+            
+            // Draw EH/OUT players
+            const ehOutPlayers = lineup["EH/OUT"] || [];
             ctx.fillText("EH/OUT:", 380, 340);
             ehOutPlayers.forEach((player, index) => {
-                if (index < 4) { // Limit to 4 players to fit on canvas
-                    ctx.fillText(player, 380, 350 + (index * 15));
-                }
+                ctx.fillText(player, 380, 350 + (index * 15));
             });
+
+            // Draw Not Selected players below EH/OUT with a small gap
+            if (notSelectedPlayers.length > 0) {
+                const startY = 350 + (ehOutPlayers.length * 15) + 15; // Start 15px below the last EH/OUT entry
+                ctx.fillText("Not Selected:", 380, startY);
+                notSelectedPlayers.forEach((player, index) => {
+                    ctx.fillText(player, 380, startY + 10 + (index * 15));
+                });
+            }
+
             ctx.textAlign = "center"; // Reset text alignment
         }
 
@@ -408,18 +418,10 @@
                 }
                 lineup["EH/OUT"] = Array.from(ehOutPlayers);
 
-                // Step 2: Add the first unselected player as a 4th EH/OUT if available
-                const notSelectedPlayers = players.filter(p => !assignedPlayers.has(p));
-                if (notSelectedPlayers.length > 0 && ehOutPlayers.size < 4) {
-                    ehOutPlayers.add(notSelectedPlayers[0]);
-                    assignedPlayers.add(notSelectedPlayers[0]);
-                    lineup["EH/OUT"] = Array.from(ehOutPlayers);
-                }
-
-                // Step 3: Create available players pool (all players minus EH/OUT and Pitcher)
+                // Step 2: Create available players pool (all players minus EH/OUT and Pitcher)
                 const availablePlayers = players.filter(p => !assignedPlayers.has(p));
 
-                // Step 4: Collect and apply overrides using available players
+                // Step 3: Collect and apply overrides using available players
                 const overrides = {};
                 positions.forEach(pos => {
                     const overrideElement = document.getElementById(`${pos}-override`);
@@ -435,12 +437,12 @@
                     }
                 });
 
-                // Step 5: Apply overrides to lineup
+                // Step 4: Apply overrides to lineup
                 for (const [pos, player] of Object.entries(overrides)) {
                     lineup[pos] = player;
                 }
 
-                // Step 6: Fill remaining positions based on priority and available players
+                // Step 5: Fill remaining positions based on priority and rankings
                 const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
                 const priorityOrder = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
                 for (const pos of priorityOrder) {
@@ -451,6 +453,9 @@
                         assignedPlayers.add(player);
                     }
                 }
+
+                // Step 6: Compute not selected players
+                const notSelectedPlayers = players.filter(p => !assignedPlayers.has(p));
 
                 // Step 7: Verify correct number of on-field players
                 const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
@@ -473,8 +478,8 @@
                     outputDiv.innerHTML += `<p>${Array.from(ehOutPlayers).join(", ")}</p>`;
                 }
 
-                // Step 9: Draw the baseball diamond with the lineup
-                drawBaseballDiamond(lineup);
+                // Step 9: Draw the baseball diamond with the lineup and not selected players
+                drawBaseballDiamond(lineup, notSelectedPlayers);
             } catch (error) {
                 console.error("Error in generateLineup:", error);
                 const outputDiv = document.getElementById("output");
