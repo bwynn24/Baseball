@@ -15,6 +15,7 @@
             --button-hover-background: #45a049;
             --output-background: #f9f9f9;
             --error-color: red;
+            --timestamp-color: #d3d3d3; /* Light gray for visibility on both themes */
         }
 
         /* Dark theme */
@@ -27,6 +28,7 @@
             --button-hover-background: #2E7D32;
             --output-background: #333;
             --error-color: #ff5555;
+            --timestamp-color: #d3d3d3;
         }
 
         body {
@@ -35,6 +37,7 @@
             background-color: var(--background-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
+            position: relative; /* For positioning the timestamp */
         }
 
         h1 {
@@ -125,9 +128,19 @@
         .theme-toggle:hover {
             background-color: var(--button-hover-background);
         }
+
+        .timestamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: var(--timestamp-color);
+            transition: color 0.3s;
+        }
     </style>
 </head>
 <body>
+    <div class="timestamp">Last Logic Update: 05:37 PM CDT, Friday, May 23, 2025</div>
     <h1>Defensive Lineup Optimizer</h1>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
@@ -262,11 +275,11 @@
         }
 
         // Get the best available player for a position
-        function getBestPlayer(position, assignedPlayers) {
-            const availablePlayers = players.filter(p => !assignedPlayers.has(p));
-            if (!availablePlayers.length) return null;
-            return availablePlayers.reduce((best, player) => 
-                rankings[position][player] < rankings[position][best] ? player : best, availablePlayers[0]);
+        function getBestPlayer(position, assignedPlayers, availablePlayers) {
+            const candidates = availablePlayers.filter(p => !assignedPlayers.has(p));
+            if (!candidates.length) return null;
+            return candidates.reduce((best, player) => 
+                rankings[position][player] < rankings[position][best] ? player : best, candidates[0]);
         }
 
         // Draw the baseball diamond with player positions and EH/OUT at bottom right
@@ -353,7 +366,7 @@
             ctx.textAlign = "center"; // Reset text alignment
         }
 
-        // Generate lineup with updated prioritization: EH/OUT > P > C > SS > ...
+        // Generate lineup with prioritization: EH/OUT > Overrides > Remaining based on rankings
         function generateLineup() {
             try {
                 console.log("generateLineup called");
@@ -395,49 +408,43 @@
                 }
                 lineup["EH/OUT"] = Array.from(ehOutPlayers);
 
-                // Step 2: Collect overrides (apply them, allowing override of EH/OUT with warning)
+                // Step 2: Create available players pool (all players minus EH/OUT and Pitcher)
+                const availablePlayers = players.filter(p => !assignedPlayers.has(p));
+
+                // Step 3: Collect and apply overrides using available players
                 const overrides = {};
                 positions.forEach(pos => {
                     const overrideElement = document.getElementById(`${pos}-override`);
                     if (overrideElement) {
                         const overridePlayer = overrideElement.value;
                         if (overridePlayer) {
-                            if (assignedPlayers.has(overridePlayer) && !lineup[pos]) {
-                                throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to EH/OUT. Remove them from EH/OUT or choose a different player.`);
+                            if (!availablePlayers.includes(overridePlayer)) {
+                                throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to EH/OUT or Pitcher.`);
                             }
                             overrides[pos] = overridePlayer;
+                            assignedPlayers.add(overridePlayer);
                         }
                     }
                 });
 
-                // Step 3: Apply overrides for all positions
-                positions.forEach(pos => {
-                    if (overrides[pos]) {
-                        lineup[pos] = overrides[pos];
-                        assignedPlayers.add(overrides[pos]);
-                    }
-                });
-
-                // Step 4: Assign Catcher if not overridden
-                if (!lineup["C"]) {
-                    lineup["C"] = getBestPlayer("C", assignedPlayers);
-                    if (!lineup["C"]) throw new Error("Not enough players available for Catcher.");
-                    assignedPlayers.add(lineup["C"]);
+                // Step 4: Apply overrides to lineup
+                for (const [pos, player] of Object.entries(overrides)) {
+                    lineup[pos] = player;
                 }
 
-                // Step 5: Fill remaining positions based on prioritization
+                // Step 5: Fill remaining positions based on priority and available players
                 const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
                 const priorityOrder = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
                 for (const pos of priorityOrder) {
                     if (!lineup[pos] && remainingPositions.includes(pos)) {
-                        const player = getBestPlayer(pos, assignedPlayers);
+                        const player = getBestPlayer(pos, assignedPlayers, availablePlayers);
                         if (!player) throw new Error(`Not enough players available for ${pos}.`);
                         lineup[pos] = player;
                         assignedPlayers.add(player);
                     }
                 }
 
-                // Step 6: Verify no duplicates and correct number of on-field players
+                // Step 6: Verify correct number of on-field players
                 const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
                 if (onFieldPlayers !== 9) {
                     throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
