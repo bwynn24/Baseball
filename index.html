@@ -135,11 +135,33 @@
             transition: color 0.3s;
             margin-bottom: 5px;
         }
+
+        .rankings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .rankings-table th, .rankings-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .rankings-table th {
+            background-color: var(--button-background);
+            color: white;
+        }
+
+        .rankings-table td select {
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:32 PM CDT, Monday, September 22, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:40 PM CDT, Monday, September 22, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -207,17 +229,42 @@
         <div id="output"></div>
         <canvas id="fieldCanvas" width="400" height="500"></canvas>
 
-        <!-- New Rankings Section -->
+        <!-- New Rankings Section with Table -->
         <div class="section" id="rankingsSection">
             <h3>Rank Players by Position</h3>
-            ${['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].map(pos => `
-                <div>
-                    <label for="${pos}-rank">${pos} Ranking:</label>
-                    <select id="${pos}-rank">
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                </div>
-            `).join("")}
+            <table class="rankings-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Rank 1</th>
+                        <th>Rank 2</th>
+                        <th>Rank 3</th>
+                        <th>Rank 4</th>
+                        <th>Rank 5</th>
+                        <th>Rank 6</th>
+                        <th>Rank 7</th>
+                        <th>Rank 8</th>
+                        <th>Rank 9</th>
+                        <th>Rank 10</th>
+                        <th>Rank 11</th>
+                        <th>Rank 12</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].map(pos => `
+                        <tr>
+                            <td>${pos}</td>
+                            ${Array(12).fill().map((_, i) => `
+                                <td>
+                                    <select class="rank-select" data-position="${pos}" data-rank="${i + 1}">
+                                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                                    </select>
+                                </td>
+                            `).join("")}
+                        </tr>
+                    `).join("")}
+                </tbody>
+            </table>
             <button onclick="updateRankings()">Update Rankings</button>
         </div>
     </div>
@@ -253,8 +300,8 @@
             document.documentElement.setAttribute("data-theme", savedTheme);
             populateOverrides();
             populateEhOutSelections();
-            initializeRankingsDropdowns(); // Initialize rankings dropdowns
-            updateRankings(); // Update rankings on load
+            initializeRankingsTable();
+            updateRankings();
         });
 
         // Dynamically create override dropdowns
@@ -288,14 +335,16 @@
             }
         }
 
-        // Initialize rankings dropdowns to match current rankings
-        function initializeRankingsDropdowns() {
+        // Initialize rankings table to match current rankings
+        function initializeRankingsTable() {
             ['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].forEach(pos => {
-                const select = document.getElementById(`${pos}-rank`);
-                if (select) {
-                    const rankedPlayers = players.slice().sort((a, b) => rankings[pos][a] - rankings[pos][b]);
-                    select.innerHTML = rankedPlayers.map(player => `<option value="${player}">${player}</option>`).join("");
-                }
+                const rankedPlayers = players.slice().sort((a, b) => rankings[pos][a] - rankings[pos][b]);
+                const selects = document.querySelectorAll(`.rank-select[data-position="${pos}"]`);
+                selects.forEach((select, index) => {
+                    if (rankedPlayers[index]) {
+                        select.value = rankedPlayers[index];
+                    }
+                });
             });
         }
 
@@ -489,19 +538,17 @@
             }
         }
 
-        // Update rankings based on dropdown selections
+        // Update rankings based on table selections
         function updateRankings() {
             ['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].forEach(pos => {
-                const select = document.getElementById(`${pos}-rank`);
-                if (select) {
-                    const options = Array.from(select.options);
-                    rankings[pos] = {};
-                    options.forEach((option, index) => {
-                        if (option.value) {
-                            rankings[pos][option.value] = index + 1;
-                        }
-                    });
-                }
+                rankings[pos] = {};
+                const selects = document.querySelectorAll(`.rank-select[data-position="${pos}"]`);
+                selects.forEach((select, index) => {
+                    const player = select.value;
+                    if (player) {
+                        rankings[pos][player] = index + 1;
+                    }
+                });
             });
             console.log("Rankings updated:", rankings); // Debug log
         }
@@ -510,7 +557,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             populateOverrides();
             populateEhOutSelections();
-            initializeRankingsDropdowns();
+            initializeRankingsTable();
             updateRankings(); // Update rankings on load
         });
     </script>
