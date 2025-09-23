@@ -462,10 +462,22 @@
             }
         }
 
-        // Initialize overrides and rankings when the DOM is loaded
+        // Initialize overrides when the DOM is loaded
         document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOMContentLoaded event fired");
             populateOverrides();
-            populateEhOutSelections();
+
+            // Dynamically populate EH/OUT dropdowns
+            const ehOutDiv = document.getElementById("ehOutSelections");
+            if (ehOutDiv) {
+                const selects = ehOutDiv.getElementsByTagName("select");
+                for (let select of selects) {
+                    select.innerHTML = `
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    `;
+                }
+            }
         });
     </script>
 </body>
