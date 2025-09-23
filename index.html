@@ -139,7 +139,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:19 PM CDT, Monday, September 22, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:32 PM CDT, Monday, September 22, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -223,7 +223,7 @@
     </div>
 
     <script>
-        // Player rankings data (initial rankings with new roster)
+        // Player rankings data (initial rankings with 12-player roster)
         const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
         const rankings = {
             "P": {"Hunter": 1, "Luke": 2, "Nathan": 3, "Evan": 4, "Sproles": 5, "Fluitt": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "King": 10, "Dominic": 11, "Becket": 12},
@@ -253,7 +253,8 @@
             document.documentElement.setAttribute("data-theme", savedTheme);
             populateOverrides();
             populateEhOutSelections();
-            updateRankings(); // Initialize rankings on load
+            initializeRankingsDropdowns(); // Initialize rankings dropdowns
+            updateRankings(); // Update rankings on load
         });
 
         // Dynamically create override dropdowns
@@ -285,6 +286,17 @@
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 `;
             }
+        }
+
+        // Initialize rankings dropdowns to match current rankings
+        function initializeRankingsDropdowns() {
+            ['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].forEach(pos => {
+                const select = document.getElementById(`${pos}-rank`);
+                if (select) {
+                    const rankedPlayers = players.slice().sort((a, b) => rankings[pos][a] - rankings[pos][b]);
+                    select.innerHTML = rankedPlayers.map(player => `<option value="${player}">${player}</option>`).join("");
+                }
+            });
         }
 
         // Get the best available player for a position
@@ -479,27 +491,27 @@
 
         // Update rankings based on dropdown selections
         function updateRankings() {
-            const newRankings = {};
             ['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].forEach(pos => {
                 const select = document.getElementById(`${pos}-rank`);
                 if (select) {
-                    newRankings[pos] = {};
-                    const rankedPlayers = Array.from(select.options)
-                        .map((option, index) => ({ player: option.value, rank: index + 1 }))
-                        .filter(item => item.player);
-                    rankedPlayers.forEach(({ player, rank }) => {
-                        newRankings[pos][player] = rank;
+                    const options = Array.from(select.options);
+                    rankings[pos] = {};
+                    options.forEach((option, index) => {
+                        if (option.value) {
+                            rankings[pos][option.value] = index + 1;
+                        }
                     });
                 }
             });
-            Object.assign(rankings, newRankings);
+            console.log("Rankings updated:", rankings); // Debug log
         }
 
         // Initialize overrides and rankings when the DOM is loaded
         document.addEventListener("DOMContentLoaded", () => {
             populateOverrides();
             populateEhOutSelections();
-            updateRankings(); // Initialize rankings on load
+            initializeRankingsDropdowns();
+            updateRankings(); // Update rankings on load
         });
     </script>
 </body>
