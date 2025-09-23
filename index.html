@@ -15,7 +15,7 @@
             --button-hover-background: #45a049;
             --output-background: #f9f9f9;
             --error-color: red;
-            --timestamp-color: #d3d3d3; /* Light gray for visibility on both themes */
+            --timestamp-color: #d3d3d3;
         }
 
         /* Dark theme */
@@ -62,7 +62,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            font-size: 18px; /* Larger font for labels */
+            font-size: 18px;
             color: var(--text-color);
         }
 
@@ -73,7 +73,7 @@
             max-width: 300px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            font-size: 16px; /* Larger font for select boxes */
+            font-size: 16px;
             color: var(--text-color);
             background-color: var(--container-background);
             transition: border-color 0.3s, background-color 0.3s, color 0.3s;
@@ -139,26 +139,25 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 10:50 PM CDT, Friday, May 23, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:19 PM CDT, Monday, September 22, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
             <label for="pitcher">Select Pitcher:</label>
             <select id="pitcher">
                 <option value="">None</option>
-                <option value="Nathan">Nathan</option>
-                <option value="Landon">Landon</option>
-                <option value="Luke">Luke</option>
-                <option value="Dominic">Dominic</option>
-                <option value="Jackie">Jackie</option>
                 <option value="Hunter">Hunter</option>
-                <option value="Fluitt">Fluitt</option>
-                <option value="Sproles">Sproles</option>
+                <option value="Luke">Luke</option>
+                <option value="Nathan">Nathan</option>
                 <option value="Evan">Evan</option>
+                <option value="Sproles">Sproles</option>
+                <option value="Fluitt">Fluitt</option>
                 <option value="Thomas">Thomas</option>
-                <option value="Ben">Ben</option>
-                <option value="Jacob">Jacob</option>
-                <option value="Joshua">Joshua</option>
+                <option value="Tony">Tony</option>
+                <option value="Jackie">Jackie</option>
+                <option value="King">King</option>
+                <option value="Dominic">Dominic</option>
+                <option value="Becket">Becket</option>
             </select>
         </div>
 
@@ -207,32 +206,37 @@
 
         <div id="output"></div>
         <canvas id="fieldCanvas" width="400" height="500"></canvas>
+
+        <!-- New Rankings Section -->
+        <div class="section" id="rankingsSection">
+            <h3>Rank Players by Position</h3>
+            ${['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].map(pos => `
+                <div>
+                    <label for="${pos}-rank">${pos} Ranking:</label>
+                    <select id="${pos}-rank">
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                </div>
+            `).join("")}
+            <button onclick="updateRankings()">Update Rankings</button>
+        </div>
     </div>
 
     <script>
-        // Player rankings data
+        // Player rankings data (initial rankings with new roster)
+        const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
         const rankings = {
-            "P": {"Nathan": 1, "Landon": 2, "Luke": 3, "Dominic": 4, "Jackie": 5, "Hunter": 6, "Fluitt": 7, 
-                  "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
-            "C": {"Nathan": 1, "Jackie": 2, "Landon": 3, "Dominic": 4, "Luke": 5, "Hunter": 6, "Fluitt": 7, 
-                  "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
-            "SS": {"Nathan": 1, "Luke": 2, "Landon": 3, "Dominic": 4, "Jackie": 5, "Hunter": 6, "Fluitt": 7, 
-                   "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
-            "2B": {"Luke": 1, "Jacob": 2, "Evan": 3, "Landon": 4, "Dominic": 5, "Nathan": 6, "Fluitt": 7, 
-                   "Sproles": 8, "Jackie": 9, "Thomas": 10, "Hunter": 11, "Ben": 12, "Joshua": 13},
-            "3B": {"Landon": 1, "Jackie": 2, "Fluitt": 3, "Luke": 4, "Nathan": 5, "Hunter": 6, "Dominic": 7, 
-                   "Sproles": 8, "Evan": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
-            "1B": {"Hunter": 1, "Dominic": 2, "Evan": 3, "Landon": 4, "Luke": 5, "Nathan": 6, "Fluitt": 7, 
-                   "Sproles": 8, "Jackie": 9, "Thomas": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
-            "CF": {"Dominic": 1, "Jackie": 2, "Landon": 3, "Nathan": 4, "Fluitt": 5, "Luke": 6, "Sproles": 7, 
-                   "Evan": 8, "Thomas": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13},
-            "LF": {"Fluitt": 1, "Sproles": 2, "Thomas": 3, "Joshua": 4, "Nathan": 5, "Luke": 6, "Landon": 7, 
-                   "Dominic": 8, "Jackie": 9, "Hunter": 10, "Evan": 11, "Ben": 12, "Jacob": 13},
-            "RF": {"Fluitt": 1, "Jackie": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, 
-                   "Evan": 8, "Landon": 9, "Hunter": 10, "Ben": 11, "Jacob": 12, "Joshua": 13}
+            "P": {"Hunter": 1, "Luke": 2, "Nathan": 3, "Evan": 4, "Sproles": 5, "Fluitt": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "C": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Luke": 4, "Evan": 5, "Sproles": 6, "Fluitt": 7, "Thomas": 8, "Tony": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "SS": {"Luke": 1, "Nathan": 2, "Hunter": 3, "Jackie": 4, "Evan": 5, "Sproles": 6, "Fluitt": 7, "Thomas": 8, "Tony": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "2B": {"Luke": 1, "Evan": 2, "Hunter": 3, "Fluitt": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "3B": {"Jackie": 1, "Fluitt": 2, "Hunter": 3, "Luke": 4, "Nathan": 5, "Sproles": 6, "Evan": 7, "Thomas": 8, "Tony": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "1B": {"Hunter": 1, "Evan": 2, "Luke": 3, "Nathan": 4, "Fluitt": 5, "Sproles": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "CF": {"Dominic": 1, "Jackie": 2, "Luke": 3, "Nathan": 4, "Hunter": 5, "Fluitt": 6, "Sproles": 7, "Evan": 8, "Thomas": 9, "Tony": 10, "King": 11, "Becket": 12},
+            "LF": {"Fluitt": 1, "Sproles": 2, "Thomas": 3, "Evan": 4, "Nathan": 5, "Luke": 6, "Hunter": 7, "Tony": 8, "Jackie": 9, "King": 10, "Dominic": 11, "Becket": 12},
+            "RF": {"Jackie": 1, "Fluitt": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, "Evan": 8, "Hunter": 9, "Tony": 10, "King": 11, "Becket": 12}
         };
 
-        const players = Object.keys(rankings["P"]);
         const positions = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
 
         // Theme toggle functionality
@@ -247,35 +251,39 @@
         document.addEventListener("DOMContentLoaded", () => {
             const savedTheme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", savedTheme);
+            populateOverrides();
+            populateEhOutSelections();
+            updateRankings(); // Initialize rankings on load
         });
 
         // Dynamically create override dropdowns
         function populateOverrides() {
-            try {
-                console.log("populateOverrides called");
-                const overridesDiv = document.getElementById("overrides");
-                if (!overridesDiv) {
-                    throw new Error("Overrides div not found in the DOM.");
-                }
-                overridesDiv.innerHTML = "";
-                positions.forEach(pos => {
-                    console.log(`Creating dropdown for ${pos}`);
-                    const div = document.createElement("div");
-                    div.innerHTML = `
-                        <label for="${pos}-override">${pos} Override (optional):</label>
-                        <select id="${pos}-override">
-                            <option value="">None</option>
-                            ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                        </select>
-                    `;
-                    overridesDiv.appendChild(div);
-                });
-            } catch (error) {
-                console.error("Error in populateOverrides:", error);
-                const outputDiv = document.getElementById("output");
-                if (outputDiv) {
-                    outputDiv.innerHTML = `<p class="error">Error initializing overrides: ${error.message}</p>`;
-                }
+            const overridesDiv = document.getElementById("overrides");
+            if (!overridesDiv) return;
+            overridesDiv.innerHTML = "";
+            positions.forEach(pos => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    <label for="${pos}-override">${pos} Override (optional):</label>
+                    <select id="${pos}-override">
+                        <option value="">None</option>
+                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    </select>
+                `;
+                overridesDiv.appendChild(div);
+            });
+        }
+
+        // Dynamically populate EH/OUT dropdowns
+        function populateEhOutSelections() {
+            const ehOutDiv = document.getElementById("ehOutSelections");
+            if (!ehOutDiv) return;
+            const selects = ehOutDiv.getElementsByTagName("select");
+            for (let select of selects) {
+                select.innerHTML = `
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                `;
             }
         }
 
@@ -292,96 +300,79 @@
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
 
-            // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Set styles
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // Draw the field (green background)
-            ctx.fillStyle = "#2ecc71"; // Green for the field
+            ctx.fillStyle = "#2ecc71";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw the infield diamond (rotated square)
-            ctx.fillStyle = "#d2b48c"; // Tan for the infield
+            ctx.fillStyle = "#d2b48c";
             ctx.beginPath();
-            ctx.moveTo(200, 100); // Top (2B)
-            ctx.lineTo(300, 200); // Right (1B)
-            ctx.lineTo(200, 300); // Bottom (Home)
-            ctx.lineTo(100, 200); // Left (3B)
+            ctx.moveTo(200, 100);
+            ctx.lineTo(300, 200);
+            ctx.lineTo(200, 300);
+            ctx.lineTo(100, 200);
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = "#ffffff";
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Draw the pitcher's mound (circle)
             ctx.fillStyle = "#d2b48c";
             ctx.beginPath();
-            ctx.arc(200, 200, 10, 0, Math.PI * 2); // Center of the diamond
+            ctx.arc(200, 200, 10, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw the outfield arc
             ctx.beginPath();
-            ctx.arc(200, 200, 150, Math.PI, 0); // Semicircle for outfield
+            ctx.arc(200, 200, 150, Math.PI, 0);
             ctx.stroke();
 
-            // Define positions on the canvas (x, y coordinates)
             const positionCoords = {
-                "P": { x: 200, y: 200 },  // Pitcher (center)
-                "C": { x: 200, y: 320 },  // Catcher (behind home)
-                "1B": { x: 280, y: 220 }, // First Base
-                "2B": { x: 240, y: 170 }, // Second Baseman (between 1B and 2B)
-                "3B": { x: 120, y: 220 }, // Third Base
-                "SS": { x: 160, y: 160 }, // Shortstop
-                "LF": { x: 100, y: 100 }, // Left Field
-                "CF": { x: 200, y: 50 },  // Center Field
-                "RF": { x: 300, y: 100 }  // Right Field
+                "P": { x: 200, y: 200 },
+                "C": { x: 200, y: 320 },
+                "1B": { x: 280, y: 220 },
+                "2B": { x: 240, y: 170 },
+                "3B": { x: 120, y: 220 },
+                "SS": { x: 160, y: 160 },
+                "LF": { x: 100, y: 100 },
+                "CF": { x: 200, y: 50 },
+                "RF": { x: 300, y: 100 }
             };
 
-            // Draw player names at their positions (only for on-field positions)
             for (const [pos, player] of Object.entries(lineup)) {
-                if (pos !== "EH/OUT") { // Exclude EH/OUT from main diamond
+                if (pos !== "EH/OUT") {
                     const coords = positionCoords[pos];
                     if (coords) {
-                        // Draw a small circle for the position
                         ctx.fillStyle = "#ffffff";
                         ctx.beginPath();
                         ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
                         ctx.fill();
-
-                        // Draw the position label and player name
                         ctx.fillStyle = "#000000";
-                        ctx.fillText(pos, coords.x, coords.y - 20); // Position label above
-                        ctx.fillText(player, coords.x, coords.y + 20); // Player name below
+                        ctx.fillText(pos, coords.x, coords.y - 20);
+                        ctx.fillText(player, coords.x, coords.y + 20);
                     }
                 }
             }
 
-            // Draw EH/OUT players (exactly 4) at bottom right with sufficient space
             ctx.fillStyle = "#000000";
             ctx.textAlign = "right";
             ctx.fillText("EH/OUT:", 380, 400);
             ehOutPlayers.slice(0, 4).forEach((player, index) => {
                 ctx.fillText(player, 380, 420 + (index * 15));
             });
-            ctx.textAlign = "center"; // Reset text alignment
+            ctx.textAlign = "center";
         }
 
         // Generate lineup with prioritization: EH/OUT > Overrides > Remaining based on rankings
         function generateLineup() {
             try {
-                console.log("generateLineup called");
                 const pitcher = document.getElementById("pitcher").value;
                 const outputDiv = document.getElementById("output");
-                if (!outputDiv) {
-                    throw new Error("Output div not found in the DOM.");
-                }
                 outputDiv.innerHTML = "";
 
-                // Check if a pitcher is selected
                 if (!pitcher) {
                     throw new Error("Please select a Pitcher to generate the lineup.");
                 }
@@ -395,12 +386,12 @@
                     document.getElementById("ehOut1").value,
                     document.getElementById("ehOut2").value,
                     document.getElementById("ehOut3").value,
-                    document.getElementById("ehOut4").value // Added EH/OUT 4
+                    document.getElementById("ehOut4").value
                 ];
 
                 for (let i = 0; i < ehOutSelections.length; i++) {
                     const player = ehOutSelections[i];
-                    if (player) { // If a player is selected (not "None")
+                    if (player) {
                         if (player === pitcher) {
                             throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as Pitcher.`);
                         }
@@ -412,10 +403,10 @@
                     }
                 }
 
-                // Step 2: Create available players pool (all players minus EH/OUT and Pitcher)
+                // Step 2: Create available players pool
                 const availablePlayers = players.filter(p => !assignedPlayers.has(p));
 
-                // Step 3: Collect and apply overrides using available players
+                // Step 3: Collect and apply overrides
                 const overrides = {};
                 positions.forEach(pos => {
                     const overrideElement = document.getElementById(`${pos}-override`);
@@ -436,7 +427,7 @@
                     lineup[pos] = player;
                 }
 
-                // Step 5: Fill remaining positions based on priority and available players
+                // Step 5: Fill remaining positions
                 const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
                 const priorityOrder = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
                 for (const pos of priorityOrder) {
@@ -450,7 +441,7 @@
 
                 // Step 6: Compute unassigned players and build EH/OUT list to exactly 4
                 const notAssignedPlayers = players.filter(p => !assignedPlayers.has(p));
-                const finalEhOutPlayers = Array.from(ehOutPlayers); // Start with designated EH/OUT
+                const finalEhOutPlayers = Array.from(ehOutPlayers);
                 while (finalEhOutPlayers.length < 4 && notAssignedPlayers.length > 0) {
                     finalEhOutPlayers.push(notAssignedPlayers.shift());
                     assignedPlayers.add(finalEhOutPlayers[finalEhOutPlayers.length - 1]);
@@ -462,8 +453,8 @@
                 if (onFieldPlayers !== 9) {
                     throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
                 }
-                if (assignedPlayers.size !== 9 + finalEhOutPlayers.length) {
-                    throw new Error("Duplicate players detected in lineup or EH/OUT assignments.");
+                if (assignedPlayers.size > 12) {
+                    throw new Error("Duplicate players detected or too many assignments.");
                 }
 
                 // Step 8: Display the lineup as text
@@ -476,10 +467,9 @@
                 outputDiv.innerHTML += "<h3>EH / OUT:</h3>";
                 outputDiv.innerHTML += `<p>${finalEhOutPlayers.join(", ")}</p>`;
 
-                // Step 9: Draw the baseball diamond with the lineup and EH/OUT players
+                // Step 9: Draw the baseball diamond
                 drawBaseballDiamond(lineup, finalEhOutPlayers);
             } catch (error) {
-                console.error("Error in generateLineup:", error);
                 const outputDiv = document.getElementById("output");
                 if (outputDiv) {
                     outputDiv.innerHTML = `<p class="error">Error generating lineup: ${error.message}</p>`;
@@ -487,22 +477,29 @@
             }
         }
 
-        // Initialize overrides when the DOM is loaded
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log("DOMContentLoaded event fired");
-            populateOverrides();
-
-            // Dynamically populate EH/OUT dropdowns
-            const ehOutDiv = document.getElementById("ehOutSelections");
-            if (ehOutDiv) {
-                const selects = ehOutDiv.getElementsByTagName("select");
-                for (let select of selects) {
-                    select.innerHTML = `
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    `;
+        // Update rankings based on dropdown selections
+        function updateRankings() {
+            const newRankings = {};
+            ['P', 'C', 'SS', '2B', '3B', '1B', 'CF', 'LF', 'RF'].forEach(pos => {
+                const select = document.getElementById(`${pos}-rank`);
+                if (select) {
+                    newRankings[pos] = {};
+                    const rankedPlayers = Array.from(select.options)
+                        .map((option, index) => ({ player: option.value, rank: index + 1 }))
+                        .filter(item => item.player);
+                    rankedPlayers.forEach(({ player, rank }) => {
+                        newRankings[pos][player] = rank;
+                    });
                 }
-            }
+            });
+            Object.assign(rankings, newRankings);
+        }
+
+        // Initialize overrides and rankings when the DOM is loaded
+        document.addEventListener("DOMContentLoaded", () => {
+            populateOverrides();
+            populateEhOutSelections();
+            updateRankings(); // Initialize rankings on load
         });
     </script>
 </body>
