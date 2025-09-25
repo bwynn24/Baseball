@@ -139,7 +139,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:48 PM CDT, Monday, September 22, 2025</div>
+    <div class="timestamp">Last Logic Update: 08:33 AM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -209,20 +209,21 @@
     </div>
 
     <script>
-        // Player rankings data (initial rankings with 12-player roster - adjust as needed)
+        // Player rankings data (updated rankings with 12-player roster)
         const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
         const rankings = {
             "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
-            "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Luke": 4, "Fluitt": 5, "Sproles": 6, "Fluitt": 7, "Thomas": 8, "Tony": 9, "Evan": 10, "King": 11, "Hunter": 12},
-            "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Dominic": 11, "Thomas": 12},
-            "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Evan": 10, "King": 11, "Hunter": 12},
-            "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt ": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
+            "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
+            "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
+            "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Hunter": 10, "King": 11, "Fluitt": 12},
+            "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
             "1B": {"Hunter": 1, "King": 2, "Evan": 3, "Tony": 4, "Dominic": 5, "Sproles": 6, "Luke": 7, "Jackie": 8, "Fluitt": 9, "Nathan": 10, "Becket": 11, "Thomas": 12},
-            "CF": {"Dominic": 1, "Jackie": 2, "Sproles": 3, "Becket": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Nathan": 8, "Tony": 9, "Thomas ": 10, "Hunter": 11, "Evan": 12},
+            "CF": {"Dominic": 1, "Jackie": 2, "Sproles": 3, "Becket": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Nathan": 8, "Tony": 9, "Thomas": 10, "Hunter": 11, "Evan": 12},
             "LF": {"Sproles": 1, "Jackie": 2, "Dominic": 3, "Tony": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Becket": 8, "Hunter": 9, "Nathan": 10, "Thomas": 11, "Evan": 12},
-            "RF": {"Sproles": 1, "King": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Sproles": 7, "Fluitt": 8, "Tony": 9, "Becket": 10, "Hunter": 11, "Evan": 12};
+            "RF": {"Sproles": 1, "King": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Jackie": 7, "Fluitt": 8, "Tony": 9, "Becket": 10, "Hunter": 11, "Evan": 12}
+        };
 
-        const positions = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
+        const positions = ["P", "C", "SS", "1B", "3B", "2B", "CF", "LF", "RF"]; // Priority order: Pitcher, Catcher, Shortstop, 1st Base, 3rd Base, 2nd Base, Center Field, Left Field, Right Field
 
         // Theme toggle functionality
         function toggleTheme() {
@@ -350,7 +351,7 @@
             ctx.textAlign = "center";
         }
 
-        // Generate lineup with prioritization: EH/OUT > Overrides > Remaining based on rankings
+        // Generate lineup with overrides prioritized, then position priorities, no duplicates
         function generateLineup() {
             try {
                 const pitcher = document.getElementById("pitcher").value;
@@ -379,8 +380,8 @@
                         if (player === pitcher) {
                             throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as Pitcher.`);
                         }
-                        if (ehOutPlayers.has(player)) {
-                            throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as EH/OUT in another slot.`);
+                        if (ehOutPlayers.has(player) || assignedPlayers.has(player)) {
+                            throw new Error(`Cannot assign ${player} as EH/OUT: they are already assigned.`);
                         }
                         ehOutPlayers.add(player);
                         assignedPlayers.add(player);
@@ -388,11 +389,11 @@
                 }
 
                 // Step 2: Create available players pool
-                const availablePlayers = players.filter(p => !assignedPlayers.has(p));
+                let availablePlayers = players.filter(p => !assignedPlayers.has(p));
 
-                // Step 3: Collect and apply overrides
+                // Step 3: Collect and apply overrides first
                 const overrides = {};
-                positions.forEach(pos => {
+                positions.slice(1).forEach(pos => { // Skip Pitcher since it's already set
                     const overrideElement = document.getElementById(`${pos}-override`);
                     if (overrideElement) {
                         const overridePlayer = overrideElement.value;
@@ -411,16 +412,14 @@
                     lineup[pos] = player;
                 }
 
-                // Step 5: Fill remaining positions
+                // Step 5: Fill remaining positions based on priority order
+                availablePlayers = players.filter(p => !assignedPlayers.has(p)); // Recalculate available players after overrides
                 const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
-                const priorityOrder = ["C", "SS", "2B", "3B", "1B", "CF", "LF", "RF"];
-                for (const pos of priorityOrder) {
-                    if (!lineup[pos] && remainingPositions.includes(pos)) {
-                        const player = getBestPlayer(pos, assignedPlayers, availablePlayers);
-                        if (!player) throw new Error(`Not enough players available for ${pos}.`);
-                        lineup[pos] = player;
-                        assignedPlayers.add(player);
-                    }
+                for (const pos of remainingPositions) {
+                    const player = getBestPlayer(pos, assignedPlayers, availablePlayers);
+                    if (!player) throw new Error(`Not enough players available for ${pos}.`);
+                    lineup[pos] = player;
+                    assignedPlayers.add(player);
                 }
 
                 // Step 6: Compute unassigned players and build EH/OUT list to exactly 4
