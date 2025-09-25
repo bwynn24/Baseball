@@ -135,11 +135,26 @@
             transition: color 0.3s;
             margin-bottom: 5px;
         }
+
+        .batting-order {
+            margin-top: 20px;
+        }
+
+        .batting-order label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .batting-order select {
+            max-width: 200px;
+            display: inline-block;
+            margin-right: 15px;
+        }
     </style>
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 08:33 AM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 05:44 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -206,6 +221,72 @@
 
         <div id="output"></div>
         <canvas id="fieldCanvas" width="400" height="500"></canvas>
+
+        <div class="section batting-order">
+            <h3>Batting Order</h3>
+            <div>
+                <label for="batting1">1:</label>
+                <select id="batting1" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting2">2:</label>
+                <select id="batting2" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting3">3:</label>
+                <select id="batting3" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting4">4:</label>
+                <select id="batting4" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting5">5:</label>
+                <select id="batting5" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting6">6:</label>
+                <select id="batting6" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting7">7:</label>
+                <select id="batting7" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting8">8:</label>
+                <select id="batting8" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting9">9:</label>
+                <select id="batting9" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting10">10:</label>
+                <select id="batting10" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting11">11:</label>
+                <select id="batting11" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+                <label for="batting12">12:</label>
+                <select id="batting12" onchange="updateBattingOptions()">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                </select>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -214,7 +295,7 @@
         const rankings = {
             "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
             "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
-            "SS": {"Nathan": 1, "Luke": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
+            "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
             "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Hunter": 10, "King": 11, "Fluitt": 12},
             "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
             "1B": {"Hunter": 1, "King": 2, "Evan": 3, "Tony": 4, "Dominic": 5, "Sproles": 6, "Luke": 7, "Jackie": 8, "Fluitt": 9, "Nathan": 10, "Becket": 11, "Thomas": 12},
@@ -239,6 +320,7 @@
             document.documentElement.setAttribute("data-theme", savedTheme);
             populateOverrides();
             populateEhOutSelections();
+            initializeBattingOptions();
         });
 
         // Dynamically create override dropdowns
@@ -270,6 +352,45 @@
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 `;
             }
+        }
+
+        // Initialize batting order options
+        function initializeBattingOptions() {
+            const battingSelects = document.querySelectorAll('.batting-order select');
+            battingSelects.forEach(select => {
+                select.innerHTML = `
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                `;
+            });
+            updateBattingOptions();
+        }
+
+        // Update batting order options to prevent duplicates
+        function updateBattingOptions() {
+            const battingSelects = document.querySelectorAll('.batting-order select');
+            const assignedPlayers = new Set();
+
+            battingSelects.forEach(select => {
+                const currentValue = select.value;
+                if (currentValue && currentValue !== "None") {
+                    assignedPlayers.add(currentValue);
+                }
+            });
+
+            battingSelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">None</option>';
+                players.forEach(player => {
+                    if (!assignedPlayers.has(player) || (currentValue === player && select.value)) {
+                        const option = document.createElement('option');
+                        option.value = player;
+                        option.text = player;
+                        select.appendChild(option);
+                    }
+                });
+                select.value = currentValue; // Restore the current selection
+            });
         }
 
         // Get the best available player for a position
