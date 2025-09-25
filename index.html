@@ -1,287 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defensive Lineup Optimizer</title>
-    <style>
-        :root {
-            /* Light theme (default) */
-            --background-color: #f4f4f4;
-            --container-background: #fff;
-            --text-color: #333;
-            --border-color: #ccc;
-            --button-background: #4CAF50;
-            --button-hover-background: #45a049;
-            --output-background: #f9f9f9;
-            --error-color: red;
-            --timestamp-color: #d3d3d3;
-        }
-
-        /* Dark theme */
-        [data-theme="dark"] {
-            --background-color: #1a1a1a;
-            --container-background: #2c2c2c;
-            --text-color: #e0e0e0;
-            --border-color: #555;
-            --button-background: #388E3C;
-            --button-hover-background: #2E7D32;
-            --output-background: #333;
-            --error-color: #ff5555;
-            --timestamp-color: #d3d3d3;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--text-color);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--container-background);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s;
-        }
-
-        .section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 18px;
-            color: var(--text-color);
-        }
-
-        select, button {
-            padding: 8px;
-            margin-bottom: 10px;
-            width: 100%;
-            max-width: 300px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 16px;
-            color: var(--text-color);
-            background-color: var(--container-background);
-            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
-        }
-
-        button {
-            background-color: var(--button-background);
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: var(--button-hover-background);
-        }
-
-        #output {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--output-background);
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .error {
-            color: var(--error-color);
-            font-weight: bold;
-        }
-
-        #fieldCanvas {
-            display: block;
-            margin: 20px auto;
-            border: 1px solid var(--border-color);
-            transition: border-color 0.3s;
-        }
-
-        .theme-toggle {
-            display: block;
-            margin: 10px auto;
-            padding: 8px 16px;
-            background-color: var(--button-background);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--button-hover-background);
-        }
-
-        .timestamp {
-            text-align: center;
-            font-size: 12px;
-            color: var(--timestamp-color);
-            transition: color 0.3s;
-            margin-bottom: 5px;
-        }
-
-        .batting-order {
-            margin-top: 20px;
-        }
-
-        .batting-order label {
-            font-size: 16px;
-            margin-right: 10px;
-        }
-
-        .batting-order select {
-            max-width: 200px;
-            display: inline-block;
-            margin-right: 15px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 05:51 PM CDT, Thursday, September 25, 2025</div>
-    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-    <div class="container">
-        <div class="section">
-            <label for="pitcher">Select Pitcher:</label>
-            <select id="pitcher">
-                <option value="">None</option>
-                <option value="Hunter">Hunter</option>
-                <option value="Luke">Luke</option>
-                <option value="Nathan">Nathan</option>
-                <option value="Evan">Evan</option>
-                <option value="Sproles">Sproles</option>
-                <option value="Fluitt">Fluitt</option>
-                <option value="Thomas">Thomas</option>
-                <option value="Tony">Tony</option>
-                <option value="Jackie">Jackie</option>
-                <option value="King">King</option>
-                <option value="Dominic">Dominic</option>
-                <option value="Becket">Becket</option>
-            </select>
+    <div class="section">
+        <h3>Overrides (Optional)</h3>
+        <div id="overrides">
+            <!-- Dynamically populated with position overrides -->
         </div>
+    </div>
 
-        <div class="section">
-            <h3>Overrides (Optional)</h3>
-            <div id="overrides">
-                <!-- Dynamically populated with position overrides -->
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>EH / OUT Selections (Optional)</h3>
-            <div id="ehOutSelections">
-                <div>
-                    <label for="ehOut1">EH / OUT 1:</label>
-                    <select id="ehOut1">
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                </div>
-                <div>
-                    <label for="ehOut2">EH / OUT 2:</label>
-                    <select id="ehOut2">
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                </div>
-                <div>
-                    <label for="ehOut3">EH / OUT 3:</label>
-                    <select id="ehOut3">
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                </div>
-                <div>
-                    <label for="ehOut4">EH / OUT 4:</label>
-                    <select id="ehOut4">
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <button onclick="generateLineup()">Generate Lineup</button>
-
-        <div id="output"></div>
-        <canvas id="fieldCanvas" width="400" height="500"></canvas>
-
-        <div class="section batting-order">
-            <h3>Batting Order</h3>
+    <div class="section">
+        <h3>EH / OUT Selections (Optional)</h3>
+        <div id="ehOutSelections">
             <div>
-                <label for="batting1">1:</label>
-                <select id="batting1" onchange="updateBattingOptions()">
+                <label for="ehOut1">EH / OUT 1:</label>
+                <select id="ehOut1">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting2">2:</label>
-                <select id="batting2" onchange="updateBattingOptions()">
+            </div>
+            <div>
+                <label for="ehOut2">EH / OUT 2:</label>
+                <select id="ehOut2">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting3">3:</label>
-                <select id="batting3" onchange="updateBattingOptions()">
+            </div>
+            <div>
+                <label for="ehOut3">EH / OUT 3:</label>
+                <select id="ehOut3">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting4">4:</label>
-                <select id="batting4" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting5">5:</label>
-                <select id="batting5" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting6">6:</label>
-                <select id="batting6" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting7">7:</label>
-                <select id="batting7" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting8">8:</label>
-                <select id="batting8" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting9">9:</label>
-                <select id="batting9" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting10">10:</label>
-                <select id="batting10" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting11">11:</label>
-                <select id="batting11" onchange="updateBattingOptions()">
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                </select>
-                <label for="batting12">12:</label>
-                <select id="batting12" onchange="updateBattingOptions()">
+            </div>
+            <div>
+                <label for="ehOut4">EH / OUT 4:</label>
+                <select id="ehOut4">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
@@ -289,324 +39,347 @@
         </div>
     </div>
 
-    <script>
-        // Player rankings data (updated rankings with 12-player roster)
-        const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
-        const rankings = {
-            "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
-            "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
-            "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
-            "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Hunter": 10, "King": 11, "Fluitt": 12},
-            "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
-            "1B": {"Hunter": 1, "King": 2, "Evan": 3, "Tony": 4, "Dominic": 5, "Sproles": 6, "Luke": 7, "Jackie": 8, "Fluitt": 9, "Nathan": 10, "Becket": 11, "Thomas": 12},
-            "CF": {"Dominic": 1, "Jackie": 2, "Sproles": 3, "Becket": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Nathan": 8, "Tony": 9, "Thomas": 10, "Hunter": 11, "Evan": 12},
-            "LF": {"Sproles": 1, "Jackie": 2, "Dominic": 3, "Tony": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Becket": 8, "Hunter": 9, "Nathan": 10, "Thomas": 11, "Evan": 12},
-            "RF": {"Sproles": 1, "King": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Jackie": 7, "Fluitt": 8, "Tony": 9, "Becket": 10, "Hunter": 11, "Evan": 12}
+    <button onclick="generateLineup()">Generate Lineup</button>
+
+    <div id="output"></div>
+    <canvas id="fieldCanvas" width="400" height="500"></canvas>
+
+    <div class="section batting-order">
+        <h3>Batting Order</h3>
+        <div>
+            <label for="batting1">1:</label>
+            <select id="batting1" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting2">2:</label>
+            <select id="batting2" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting3">3:</label>
+            <select id="batting3" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting4">4:</label>
+            <select id="batting4" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting5">5:</label>
+            <select id="batting5" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting6">6:</label>
+            <select id="batting6" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting7">7:</label>
+            <select id="batting7" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting8">8:</label>
+            <select id="batting8" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting9">9:</label>
+            <select id="batting9" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting10">10:</label>
+            <select id="batting10" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting11">11:</label>
+            <select id="batting11" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+            <label for="batting12">12:</label>
+            <select id="batting12" onchange="updateBattingOptions()">
+                <option value="">None</option>
+                ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+            </select>
+        </div>
+    </div>
+
+    <button class="export-button" onclick="exportLineupAndBattingOrder()">Export Lineup and Batting Order</button>
+</div>
+
+<script>
+    // Player rankings data (updated rankings with 12-player roster)
+    const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
+    const rankings = {
+        "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
+        "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
+        "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
+        "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Hunter": 10, "King": 11, "Fluitt": 12},
+        "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
+        "1B": {"Hunter": 1, "King": 2, "Evan": 3, "Tony": 4, "Dominic": 5, "Sproles": 6, "Luke": 7, "Jackie": 8, "Fluitt": 9, "Nathan": 10, "Becket": 11, "Thomas": 12},
+        "CF": {"Dominic": 1, "Jackie": 2, "Sproles": 3, "Becket": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Nathan": 8, "Tony": 9, "Thomas": 10, "Hunter": 11, "Evan": 12},
+        "LF": {"Sproles": 1, "Jackie": 2, "Dominic": 3, "Tony": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Becket": 8, "Hunter": 9, "Nathan": 10, "Thomas": 11, "Evan": 12},
+        "RF": {"Sproles": 1, "King": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Jackie": 7, "Fluitt": 8, "Tony": 9, "Becket": 10, "Hunter": 11, "Evan": 12}
+    };
+
+    const positions = ["P", "C", "SS", "1B", "3B", "2B", "CF", "LF", "RF"]; // Priority order: Pitcher, Catcher, Shortstop, 1st Base, 3rd Base, 2nd Base, Center Field, Left Field, Right Field
+
+    // Theme toggle functionality
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+    }
+
+    // Apply saved theme on load
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        populateOverrides();
+        populateEhOutSelections();
+    });
+
+    // Dynamically create override dropdowns
+    function populateOverrides() {
+        const overridesDiv = document.getElementById("overrides");
+        if (!overridesDiv) return;
+        overridesDiv.innerHTML = "";
+        positions.forEach(pos => {
+            const div = document.createElement("div");
+            div.innerHTML = `
+                <label for="${pos}-override">${pos} Override (optional):</label>
+                <select id="${pos}-override">
+                    <option value="">None</option>
+                    ${players.map(player => `<option value="`\({player}">\)`{player}</option>`).join("")}
+                </select>
+            `;
+            overridesDiv.appendChild(div);
+        });
+    }
+
+    // Dynamically populate EH/OUT dropdowns
+    function populateEhOutSelections() {
+        const ehOutDiv = document.getElementById("ehOutSelections");
+        if (!ehOutDiv) return;
+        const selects = ehOutDiv.getElementsByTagName("select");
+        for (let select of selects) {
+            select.innerHTML = `
+                <option value="">None</option>
+                ${players.map(player => `<option value="`\({player}">\)`{player}</option>`).join("")}
+            `;
+        }
+    }
+
+    // Get the best available player for a position
+    function getBestPlayer(position, assignedPlayers, availablePlayers) {
+        const candidates = availablePlayers.filter(p => !assignedPlayers.has(p));
+        if (!candidates.length) return null;
+        return candidates.reduce((best, player) => 
+            rankings[position][player] < rankings[position][best] ? player : best, candidates[0]);
+    }
+
+    // Draw the baseball diamond with player positions and EH/OUT (exactly 4 players) at bottom right
+    function drawBaseballDiamond(lineup, ehOutPlayers) {
+        const canvas = document.getElementById("fieldCanvas");
+        const ctx = canvas.getContext("2d");
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = "12px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillStyle = "#2ecc71";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#d2b48c";
+        ctx.beginPath();
+        ctx.moveTo(200, 100);
+        ctx.lineTo(300, 200);
+        ctx.lineTo(200, 300);
+        ctx.lineTo(100, 200);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#d2b48c";
+        ctx.beginPath();
+        ctx.arc(200, 200, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(200, 200, 150, Math.PI, 0);
+        ctx.stroke();
+
+        const positionCoords = {
+            "P": { x: 200, y: 200 },
+            "C": { x: 200, y: 320 },
+            "1B": { x: 280, y: 220 },
+            "2B": { x: 240, y: 170 },
+            "3B": { x: 120, y: 220 },
+            "SS": { x: 160, y: 160 },
+            "LF": { x: 100, y: 100 },
+            "CF": { x: 200, y: 50 },
+            "RF": { x: 300, y: 100 }
         };
 
-        const positions = ["P", "C", "SS", "1B", "3B", "2B", "CF", "LF", "RF"]; // Priority order: Pitcher, Catcher, Shortstop, 1st Base, 3rd Base, 2nd Base, Center Field, Left Field, Right Field
-
-        // Theme toggle functionality
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute("data-theme");
-            const newTheme = currentTheme === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("theme", newTheme);
+        for (const [pos, player] of Object.entries(lineup)) {
+            if (pos !== "EH/OUT") {
+                const coords = positionCoords[pos];
+                if (coords) {
+                    ctx.fillStyle = "#ffffff";
+                    ctx.beginPath();
+                    ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#000000";
+                    ctx.fillText(pos, coords.x, coords.y - 20);
+                    ctx.fillText(player, coords.x, coords.y + 20);
+                }
+            }
         }
 
-        // Apply saved theme on load
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedTheme = localStorage.getItem("theme") || "light";
-            document.documentElement.setAttribute("data-theme", savedTheme);
-            populateOverrides();
-            populateEhOutSelections();
-            initializeBattingOptions();
+        ctx.fillStyle = "#000000";
+        ctx.textAlign = "right";
+        ctx.fillText("EH/OUT:", 380, 400);
+        ehOutPlayers.slice(0, 4).forEach((player, index) => {
+            ctx.fillText(player, 380, 420 + (index * 15));
         });
+        ctx.textAlign = "center";
+    }
 
-        // Dynamically create override dropdowns
-        function populateOverrides() {
-            const overridesDiv = document.getElementById("overrides");
-            if (!overridesDiv) return;
-            overridesDiv.innerHTML = "";
-            positions.forEach(pos => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                    <label for="${pos}-override">${pos} Override (optional):</label>
-                    <select id="${pos}-override">
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    </select>
-                `;
-                overridesDiv.appendChild(div);
+    // Generate lineup with overrides prioritized, then position priorities, no duplicates
+    function generateLineup() {
+        try {
+            const pitcher = document.getElementById("pitcher").value;
+            const outputDiv = document.getElementById("output");
+            outputDiv.innerHTML = "";
+
+            if (!pitcher) {
+                throw new Error("Please select a Pitcher to generate the lineup.");
+            }
+
+            const lineup = {"P": pitcher};
+            const assignedPlayers = new Set([pitcher]);
+
+            // Step 1: Collect EH/OUT selections first, ensuring no duplicates
+            const ehOutPlayers = new Set();
+            const ehOutSelections = [
+                document.getElementById("ehOut1").value,
+                document.getElementById("ehOut2").value,
+                document.getElementById("ehOut3").value,
+                document.getElementById("ehOut4").value
+            ];
+
+            for (let i = 0; i < ehOutSelections.length; i++) {
+                const player = ehOutSelections[i];
+                if (player) {
+                    if (player === pitcher) {
+                        throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as Pitcher.`);
+                    }
+                    if (ehOutPlayers.has(player) || assignedPlayers.has(player)) {
+                        throw new Error(`Cannot assign ${player} as EH/OUT: they are already assigned.`);
+                    }
+                    ehOutPlayers.add(player);
+                    assignedPlayers.add(player);
+                }
+            }
+
+            // Step 2: Create available players pool
+            let availablePlayers = players.filter(p => !assignedPlayers.has(p));
+
+            // Step 3: Collect and apply overrides first
+            const overrides = {};
+            positions.slice(1).forEach(pos => { // Skip Pitcher since it's already set
+                const overrideElement = document.getElementById(`${pos}-override`);
+                if (overrideElement) {
+                    const overridePlayer = overrideElement.value;
+                    if (overridePlayer) {
+                        if (!availablePlayers.includes(overridePlayer)) {
+                            throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to EH/OUT or Pitcher.`);
+                        }
+                        overrides[pos] = overridePlayer;
+                        assignedPlayers.add(overridePlayer);
+                    }
+                }
             });
+
+            // Step 4: Apply overrides to lineup
+            for (const [pos, player] of Object.entries(overrides)) {
+                lineup[pos] = player;
+            }
+
+            // Step 5: Fill remaining positions based on priority order
+            availablePlayers = players.filter(p => !assignedPlayers.has(p)); // Recalculate available players after overrides
+            const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
+            for (const pos of remainingPositions) {
+                const player = getBestPlayer(pos, assignedPlayers, availablePlayers);
+                if (!player) throw new Error(`Not enough players available for ${pos}.`);
+                lineup[pos] = player;
+                assignedPlayers.add(player);
+            }
+
+            // Step 6: Compute unassigned players and build EH/OUT list to exactly 4
+            const notAssignedPlayers = players.filter(p => !assignedPlayers.has(p));
+            const finalEhOutPlayers = Array.from(ehOutPlayers);
+            while (finalEhOutPlayers.length < 4 && notAssignedPlayers.length > 0) {
+                finalEhOutPlayers.push(notAssignedPlayers.shift());
+                assignedPlayers.add(finalEhOutPlayers[finalEhOutPlayers.length - 1]);
+            }
+            lineup["EH/OUT"] = finalEhOutPlayers;
+
+            // Step 7: Verify correct number of on-field players
+            const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
+            if (onFieldPlayers !== 9) {
+                throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
+            }
+            if (assignedPlayers.size > 12) {
+                throw new Error("Duplicate players detected or too many assignments.");
+            }
+
+            // Step 8: Display the lineup as text
+            outputDiv.innerHTML = "<h3>Lineup:</h3>";
+            for (const [pos, player] of Object.entries(lineup)) {
+                if (pos !== "EH/OUT") {
+                    outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
+                }
+            }
+            outputDiv.innerHTML += "<h3>EH / OUT:</h3>";
+            outputDiv.innerHTML += `<p>${finalEhOutPlayers.join(", ")}</p>`;
+
+            // Step 9: Draw the baseball diamond
+            drawBaseballDiamond(lineup, finalEhOutPlayers);
+        } catch (error) {
+            const outputDiv = document.getElementById("output");
+            if (outputDiv) {
+                outputDiv.innerHTML = `<p class="error">Error generating lineup: ${error.message}</p>`;
+            }
         }
+    }
+
+    // Initialize overrides when the DOM is loaded
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOMContentLoaded event fired");
+        populateOverrides();
 
         // Dynamically populate EH/OUT dropdowns
-        function populateEhOutSelections() {
-            const ehOutDiv = document.getElementById("ehOutSelections");
-            if (!ehOutDiv) return;
+        const ehOutDiv = document.getElementById("ehOutSelections");
+        if (ehOutDiv) {
             const selects = ehOutDiv.getElementsByTagName("select");
             for (let select of selects) {
                 select.innerHTML = `
                     <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
+                    ${players.map(player => `<option value="`\({player}">\)`{player}</option>`).join("")}
                 `;
             }
         }
-
-        // Initialize batting order options
-        function initializeBattingOptions() {
-            const battingSelects = document.querySelectorAll('.batting-order select');
-            battingSelects.forEach(select => {
-                select.innerHTML = `
-                    <option value="">None</option>
-                    ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                `;
-            });
-            updateBattingOptions();
-        }
-
-        // Update batting order options to prevent duplicates and preserve selections
-        function updateBattingOptions() {
-            const battingSelects = document.querySelectorAll('.batting-order select');
-            const selections = {};
-            const assignedPlayers = new Set();
-
-            // Store current selections
-            battingSelects.forEach(select => {
-                selections[select.id] = select.value;
-                if (select.value && select.value !== "None") {
-                    assignedPlayers.add(select.value);
-                }
-            });
-
-            // Update each dropdown
-            battingSelects.forEach(select => {
-                select.innerHTML = '<option value="">None</option>';
-                players.forEach(player => {
-                    if (!assignedPlayers.has(player) || selections[select.id] === player) {
-                        const option = document.createElement('option');
-                        option.value = player;
-                        option.text = player;
-                        select.appendChild(option);
-                    }
-                });
-                // Restore the original selection if it still exists
-                if (selections[select.id] && selections[select.id] !== "None") {
-                    select.value = selections[select.id];
-                    if (!select.value) {
-                        // If the option was removed (e.g., due to another selection), set to None
-                        select.value = "";
-                    }
-                }
-            });
-        }
-
-        // Get the best available player for a position
-        function getBestPlayer(position, assignedPlayers, availablePlayers) {
-            const candidates = availablePlayers.filter(p => !assignedPlayers.has(p));
-            if (!candidates.length) return null;
-            return candidates.reduce((best, player) => 
-                rankings[position][player] < rankings[position][best] ? player : best, candidates[0]);
-        }
-
-        // Draw the baseball diamond with player positions and EH/OUT (exactly 4 players) at bottom right
-        function drawBaseballDiamond(lineup, ehOutPlayers) {
-            const canvas = document.getElementById("fieldCanvas");
-            const ctx = canvas.getContext("2d");
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.font = "12px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-
-            ctx.fillStyle = "#2ecc71";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = "#d2b48c";
-            ctx.beginPath();
-            ctx.moveTo(200, 100);
-            ctx.lineTo(300, 200);
-            ctx.lineTo(200, 300);
-            ctx.lineTo(100, 200);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = "#ffffff";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.fillStyle = "#d2b48c";
-            ctx.beginPath();
-            ctx.arc(200, 200, 10, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.arc(200, 200, 150, Math.PI, 0);
-            ctx.stroke();
-
-            const positionCoords = {
-                "P": { x: 200, y: 200 },
-                "C": { x: 200, y: 320 },
-                "1B": { x: 280, y: 220 },
-                "2B": { x: 240, y: 170 },
-                "3B": { x: 120, y: 220 },
-                "SS": { x: 160, y: 160 },
-                "LF": { x: 100, y: 100 },
-                "CF": { x: 200, y: 50 },
-                "RF": { x: 300, y: 100 }
-            };
-
-            for (const [pos, player] of Object.entries(lineup)) {
-                if (pos !== "EH/OUT") {
-                    const coords = positionCoords[pos];
-                    if (coords) {
-                        ctx.fillStyle = "#ffffff";
-                        ctx.beginPath();
-                        ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = "#000000";
-                        ctx.fillText(pos, coords.x, coords.y - 20);
-                        ctx.fillText(player, coords.x, coords.y + 20);
-                    }
-                }
-            }
-
-            ctx.fillStyle = "#000000";
-            ctx.textAlign = "right";
-            ctx.fillText("EH/OUT:", 380, 400);
-            ehOutPlayers.slice(0, 4).forEach((player, index) => {
-                ctx.fillText(player, 380, 420 + (index * 15));
-            });
-            ctx.textAlign = "center";
-        }
-
-        // Generate lineup with overrides prioritized, then position priorities, no duplicates
-        function generateLineup() {
-            try {
-                const pitcher = document.getElementById("pitcher").value;
-                const outputDiv = document.getElementById("output");
-                outputDiv.innerHTML = "";
-
-                if (!pitcher) {
-                    throw new Error("Please select a Pitcher to generate the lineup.");
-                }
-
-                const lineup = {"P": pitcher};
-                const assignedPlayers = new Set([pitcher]);
-
-                // Step 1: Collect EH/OUT selections first, ensuring no duplicates
-                const ehOutPlayers = new Set();
-                const ehOutSelections = [
-                    document.getElementById("ehOut1").value,
-                    document.getElementById("ehOut2").value,
-                    document.getElementById("ehOut3").value,
-                    document.getElementById("ehOut4").value
-                ];
-
-                for (let i = 0; i < ehOutSelections.length; i++) {
-                    const player = ehOutSelections[i];
-                    if (player) {
-                        if (player === pitcher) {
-                            throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as Pitcher.`);
-                        }
-                        if (ehOutPlayers.has(player) || assignedPlayers.has(player)) {
-                            throw new Error(`Cannot assign ${player} as EH/OUT: they are already assigned.`);
-                        }
-                        ehOutPlayers.add(player);
-                        assignedPlayers.add(player);
-                    }
-                }
-
-                // Step 2: Create available players pool
-                let availablePlayers = players.filter(p => !assignedPlayers.has(p));
-
-                // Step 3: Collect and apply overrides first
-                const overrides = {};
-                positions.slice(1).forEach(pos => { // Skip Pitcher since it's already set
-                    const overrideElement = document.getElementById(`${pos}-override`);
-                    if (overrideElement) {
-                        const overridePlayer = overrideElement.value;
-                        if (overridePlayer) {
-                            if (!availablePlayers.includes(overridePlayer)) {
-                                throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to EH/OUT or Pitcher.`);
-                            }
-                            overrides[pos] = overridePlayer;
-                            assignedPlayers.add(overridePlayer);
-                        }
-                    }
-                });
-
-                // Step 4: Apply overrides to lineup
-                for (const [pos, player] of Object.entries(overrides)) {
-                    lineup[pos] = player;
-                }
-
-                // Step 5: Fill remaining positions based on priority order
-                availablePlayers = players.filter(p => !assignedPlayers.has(p)); // Recalculate available players after overrides
-                const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
-                for (const pos of remainingPositions) {
-                    const player = getBestPlayer(pos, assignedPlayers, availablePlayers);
-                    if (!player) throw new Error(`Not enough players available for ${pos}.`);
-                    lineup[pos] = player;
-                    assignedPlayers.add(player);
-                }
-
-                // Step 6: Compute unassigned players and build EH/OUT list to exactly 4
-                const notAssignedPlayers = players.filter(p => !assignedPlayers.has(p));
-                const finalEhOutPlayers = Array.from(ehOutPlayers);
-                while (finalEhOutPlayers.length < 4 && notAssignedPlayers.length > 0) {
-                    finalEhOutPlayers.push(notAssignedPlayers.shift());
-                    assignedPlayers.add(finalEhOutPlayers[finalEhOutPlayers.length - 1]);
-                }
-                lineup["EH/OUT"] = finalEhOutPlayers;
-
-                // Step 7: Verify correct number of on-field players
-                const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
-                if (onFieldPlayers !== 9) {
-                    throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
-                }
-                if (assignedPlayers.size > 12) {
-                    throw new Error("Duplicate players detected or too many assignments.");
-                }
-
-                // Step 8: Display the lineup as text
-                outputDiv.innerHTML = "<h3>Lineup:</h3>";
-                for (const [pos, player] of Object.entries(lineup)) {
-                    if (pos !== "EH/OUT") {
-                        outputDiv.innerHTML += `<p>${pos}: ${player}</p>`;
-                    }
-                }
-                outputDiv.innerHTML += "<h3>EH / OUT:</h3>";
-                outputDiv.innerHTML += `<p>${finalEhOutPlayers.join(", ")}</p>`;
-
-                // Step 9: Draw the baseball diamond
-                drawBaseballDiamond(lineup, finalEhOutPlayers);
-            } catch (error) {
-                const outputDiv = document.getElementById("output");
-                if (outputDiv) {
-                    outputDiv.innerHTML = `<p class="error">Error generating lineup: ${error.message}</p>`;
-                }
-            }
-        }
-
-        // Initialize overrides when the DOM is loaded
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log("DOMContentLoaded event fired");
-            populateOverrides();
-
-            // Dynamically populate EH/OUT dropdowns
-            const ehOutDiv = document.getElementById("ehOutSelections");
-            if (ehOutDiv) {
-                const selects = ehOutDiv.getElementsByTagName("select");
-                for (let select of selects) {
-                    select.innerHTML = `
-                        <option value="">None</option>
-                        ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
-                    `;
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+    });
+</script>
