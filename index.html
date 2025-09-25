@@ -154,7 +154,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 05:44 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 05:51 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -366,30 +366,39 @@
             updateBattingOptions();
         }
 
-        // Update batting order options to prevent duplicates
+        // Update batting order options to prevent duplicates and preserve selections
         function updateBattingOptions() {
             const battingSelects = document.querySelectorAll('.batting-order select');
+            const selections = {};
             const assignedPlayers = new Set();
 
+            // Store current selections
             battingSelects.forEach(select => {
-                const currentValue = select.value;
-                if (currentValue && currentValue !== "None") {
-                    assignedPlayers.add(currentValue);
+                selections[select.id] = select.value;
+                if (select.value && select.value !== "None") {
+                    assignedPlayers.add(select.value);
                 }
             });
 
+            // Update each dropdown
             battingSelects.forEach(select => {
-                const currentValue = select.value;
                 select.innerHTML = '<option value="">None</option>';
                 players.forEach(player => {
-                    if (!assignedPlayers.has(player) || (currentValue === player && select.value)) {
+                    if (!assignedPlayers.has(player) || selections[select.id] === player) {
                         const option = document.createElement('option');
                         option.value = player;
                         option.text = player;
                         select.appendChild(option);
                     }
                 });
-                select.value = currentValue; // Restore the current selection
+                // Restore the original selection if it still exists
+                if (selections[select.id] && selections[select.id] !== "None") {
+                    select.value = selections[select.id];
+                    if (!select.value) {
+                        // If the option was removed (e.g., due to another selection), set to None
+                        select.value = "";
+                    }
+                }
             });
         }
 
