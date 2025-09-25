@@ -167,11 +167,39 @@
         .export-button:hover {
             background-color: #1E88E5;
         }
+
+        /* Temporary export container for PDF styling */
+        #exportContainer {
+            display: none;
+            position: relative;
+            width: 600px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+
+        #exportContainer .batting-column {
+            width: 150px;
+            float: left;
+            padding: 10px;
+        }
+
+        #exportContainer .lineup-column {
+            width: 200px;
+            float: left;
+            padding: 10px;
+        }
+
+        #exportContainer .field-visual {
+            width: 250px;
+            float: left;
+            padding: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 06:08 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 06:41 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -308,8 +336,8 @@
         <button class="export-button" onclick="exportLineupAndBattingOrder()">Export Lineup and Batting Order</button>
     </div>
 
-    <!-- Include jsPDF library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Include html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         // Player rankings data (updated rankings with 12-player roster)
         const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
@@ -416,7 +444,6 @@
                 if (selections[select.id] && selections[select.id] !== "None") {
                     select.value = selections[select.id];
                     if (!select.value) {
-                        // If the option was removed (e.g., due to another selection), set to None
                         select.value = "";
                     }
                 }
@@ -629,40 +656,56 @@
             }
         });
 
-        // Export lineup and batting order to PDF
+        // Export lineup and batting order to PDF with visual
         function exportLineupAndBattingOrder() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const outputDiv = document.getElementById("output");
+            const element = document.getElementById('exportContainer');
+            const outputDiv = document.getElementById('output');
+            const fieldCanvas = document.getElementById('fieldCanvas');
             const battingSelects = document.querySelectorAll('.batting-order select');
 
-            let content = "Defensive Lineup and Batting Order\n\n";
-            content += "Generated on: " + new Date().toLocaleString() + "\n\n";
+            // Create temporary export container
+            element.innerHTML = `
+                <h2>Lineup and Batting Order</h2>
+                <p>Generated on: ${new Date().toLocaleString()}</p>
+                <div class="batting-column">
+                    <h3>Batting Order</h3>
+                    ${Array.from({ length: 12 }, (_, i) => {
+                        const pos = i + 1;
+                        const player = battingSelects[i].value || 'None';
+                        return `<p>${pos}: ${player}</p>`;
+                    }).join('')}
+                </div>
+                <div class="lineup-column">
+                    <h3>Defensive Lineup</h3>
+                    ${outputDiv.innerHTML
+                        .replace(/<h3>Lineup:<\/h3>/g, '')
+                        .replace(/<h3>EH \/ OUT:<\/h3>/g, '<h4>EH / OUT:</h4>')
+                        .replace(/<p>/g, '')
+                        .replace(/<\/p>/g, '<br>')
+                        .trim()}
+                </div>
+                <div class="field-visual">
+                    <h3>Field Positions</h3>
+                    <canvas id="exportCanvas" width="${fieldCanvas.width}" height="${fieldCanvas.height}"></canvas>
+                </div>
+            `;
 
-            // Defensive Lineup
-            if (outputDiv) {
-                content += "Defensive Lineup:\n";
-                const lineupText = outputDiv.innerHTML
-                    .replace(/<h3>Lineup:<\/h3>/g, "")
-                    .replace(/<h3>EH \/ OUT:<\/h3>/g, "\nEH / OUT:")
-                    .replace(/<p>/g, "")
-                    .replace(/<\/p>/g, "\n")
-                    .trim();
-                content += lineupText + "\n\n";
-            }
+            // Copy canvas content to export canvas
+            const exportCanvas = document.getElementById('exportCanvas');
+            const exportCtx = exportCanvas.getContext('2d');
+            exportCtx.drawImage(fieldCanvas, 0, 0);
 
-            // Batting Order
-            content += "Batting Order:\n";
-            battingSelects.forEach((select, index) => {
-                const position = index + 1;
-                const player = select.value || "None";
-                content += `${position}: ${player}\n`;
+            // Generate PDF using html2pdf
+            html2pdf().from(element).set({
+                margin: [10, 10, 10, 10],
+                filename: 'lineup_and_batting_order.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).save().then(() => {
+                element.innerHTML = ''; // Clear temporary container
             });
-
-            // Add content to PDF
-            doc.text(content, 10, 10);
-            doc.save("lineup_and_batting_order.pdf");
         }
     </script>
+    <div id="exportContainer"></div> <!-- Temporary container for PDF export -->
 </body>
 </html>
