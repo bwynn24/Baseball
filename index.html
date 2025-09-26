@@ -45,6 +45,7 @@
         .batting-order table { width: 100%; border-collapse: collapse; }
         .batting-order th, .batting-order td { padding: 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
         .batting-order th { width: 30px; }
+        .batting-order td { width: auto; }
         .batting-order td select { width: 100%; max-width: 200px; }
         @media (max-width: 600px) {
             #fieldCanvas { width: 100%; height: auto; max-height: 300px; }
@@ -56,7 +57,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:13 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:27 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -74,6 +75,7 @@
                 <tr><th>11</th><td><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
                 <tr><th>12</th><td><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
             </table>
+            <button onclick="generateBattingOrder()">Generate Batting Order</button>
         </div></div>
         <div class="section">
             <label for="pitcher">Select Pitcher:</label>
@@ -103,7 +105,7 @@
         <button onclick="generateLineup()">Generate Lineup</button>
         <div id="output"></div>
         <canvas id="fieldCanvas" width="400" height="400"></canvas>
-        <div class="section batting-order"><button onclick="generateBattingOrder()">Generate Batting Order</button></div>
+        <div class="section"><button onclick="generateVisual()">Generate Visual</button></div>
     </div>
     <script>
         const players=["Hunter","Luke","Nathan","Evan","Sproles","Fluitt","Thomas","Tony","Jackie","King","Dominic","Becket"];
@@ -116,7 +118,7 @@
         function initializeBattingOptions(){const e=document.querySelectorAll('.batting-order select');e.forEach(t=>{t.innerHTML=`<option value="">None</option>${players.map(e=>`<option value="${e}">${e}</option>`).join("")}`;});updateBattingOptions();}
         function updateBattingOptions(){const e=document.querySelectorAll('.batting-order select');const t={};const o=new Set();e.forEach(e=>{t[e.id]=e.value;e.value&&e.value!=="None"&&o.add(e.value);});e.forEach(e=>{e.innerHTML='<option value="">None</option>';players.forEach(n=>{if(!o.has(n)||t[e.id]===n){const t=document.createElement("option");t.value=n;t.text=n;e.appendChild(t);}});if(t[e.id]&&t[e.id]!=="None"){e.value=t[e.id];if(!e.value)e.value="";}});}
         function getBestPlayer(e,t,o){const n=o.filter(e=>!t.has(e));if(!n.length)return null;return n.reduce((t,o)=>rankings[e][o]<rankings[e][t]?o:t,n[0]);}
-        function drawBaseballDiamond(ctx, lineup, ehOutPlayers) {
+        function drawBaseballDiamond(ctx, lineup, ehOutPlayers, battingOrder) {
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -155,7 +157,16 @@
                 "RF": { x: 300, y: 100 }
             };
 
-            ctx.fillStyle = "#ffffff"; // Changed all text to white
+            ctx.fillStyle = "#ffffff";
+            // Draw batting order on the far left
+            ctx.textAlign = "left";
+            battingOrder.forEach((player, index) => {
+                if (player && player !== "None") {
+                    ctx.fillText(`${index + 1}: ${player}`, 10, 20 + index * 15);
+                }
+            });
+            ctx.textAlign = "center";
+
             for (const [pos, player] of Object.entries(lineup)) {
                 if (pos !== "EH/OUT" && player) {
                     const coords = positionCoords[pos];
@@ -171,10 +182,76 @@
             ehOutPlayers.slice(0, 4).forEach((player, index) => {
                 if (player) ctx.fillText(player, 380, 370 + index * 12);
             });
-            ctx.textAlign = "center";
         }
-        function generateLineup(){try{const e=document.getElementById("pitcher").value;const t=document.getElementById("output");t.innerHTML="";if(!e)throw new Error("Please select a Pitcher to generate the lineup.");const o={"P":e};const n=new Set([e]);const r=new Set();const a=[document.getElementById("ehOut1").value,document.getElementById("ehOut2").value,document.getElementById("ehOut3").value,document.getElementById("ehOut4").value];for(let e=0;e<a.length;e++){const t=a[e];if(t){if(t===e)throw new Error(`Cannot assign ${t} as EH/OUT: they are already selected as Pitcher.`);if(r.has(t)||n.has(t))throw new Error(`Cannot assign ${t} as EH/OUT: they are already assigned.`);r.add(t);n.add(t);}}let l=players.filter(e=>!n.has(e));const i={};positions.slice(1).forEach(e=>{const t=document.getElementById(`${e}-override`);if(t){const o=t.value;if(o){if(!l.includes(o))throw new Error(`Cannot override ${e} with ${o}: ${o} is already assigned to EH/OUT or Pitcher.`);i[e]=o;n.add(o);}}});for(const[e,t]of Object.entries(i))o[e]=t;l=players.filter(e=>!n.has(e));const s=positions.filter(e=>!o.hasOwnProperty(e));for(const e of s){const t=getBestPlayer(e,n,l);if(!t)throw new Error(`Not enough players available for ${e}.`);o[e]=t;n.add(t);}const c=players.filter(e=>!n.has(e));const d=Array.from(r);while(d.length<4&&c.length>0){d.push(c.shift());n.add(d[d.length-1]);}o["EH/OUT"]=d;const u=Object.keys(o).length-1;if(u!==9)throw new Error(`Incorrect number of on-field players: expected 9, got ${u}.`);if(n.size>12)throw new Error("Duplicate players detected or too many assignments.");t.innerHTML="<h3>Lineup:</h3>";for(const[e,n]of Object.entries(o))e!=="EH/OUT"?t.innerHTML+=`<p>${e}: ${n}</p>`:0;t.innerHTML+="<h3>EH / OUT:</h3><p>"+d.join(", ")+"</p>";drawBaseballDiamond(document.getElementById("fieldCanvas").getContext("2d"),o,d);}catch(e){const o=document.getElementById("output");if(o)o.innerHTML=`<p class="error">Error generating lineup: ${e.message}</p>`;}}
+        function generateLineup(){try{const e=document.getElementById("pitcher").value;const t=document.getElementById("output");t.innerHTML="";if(!e)throw new Error("Please select a Pitcher to generate the lineup.");const o={"P":e};const n=new Set([e]);const r=new Set();const a=[document.getElementById("ehOut1").value,document.getElementById("ehOut2").value,document.getElementById("ehOut3").value,document.getElementById("ehOut4").value];for(let e=0;e<a.length;e++){const t=a[e];if(t){if(t===e)throw new Error(`Cannot assign ${t} as EH/OUT: they are already selected as Pitcher.`);if(r.has(t)||n.has(t))throw new Error(`Cannot assign ${t} as EH/OUT: they are already assigned.`);r.add(t);n.add(t);}}let l=players.filter(e=>!n.has(e));const i={};positions.slice(1).forEach(e=>{const t=document.getElementById(`${e}-override`);if(t){const o=t.value;if(o){if(!l.includes(o))throw new Error(`Cannot override ${e} with ${o}: ${o} is already assigned to EH/OUT or Pitcher.`);i[e]=o;n.add(o);}}});for(const[e,t]of Object.entries(i))o[e]=t;l=players.filter(e=>!n.has(e));const s=positions.filter(e=>!o.hasOwnProperty(e));for(const e of s){const t=getBestPlayer(e,n,l);if(!t)throw new Error(`Not enough players available for ${e}.`);o[e]=t;n.add(t);}const c=players.filter(e=>!n.has(e));const d=Array.from(r);while(d.length<4&&c.length>0){d.push(c.shift());n.add(d[d.length-1]);}o["EH/OUT"]=d;const u=Object.keys(o).length-1;if(u!==9)throw new Error(`Incorrect number of on-field players: expected 9, got ${u}.`);if(n.size>12)throw new Error("Duplicate players detected or too many assignments.");t.innerHTML="<h3>Lineup:</h3>";for(const[e,n]of Object.entries(o))e!=="EH/OUT"?t.innerHTML+=`<p>${e}: ${n}</p>`:0;t.innerHTML+="<h3>EH / OUT:</h3><p>"+d.join(", ")+"</p>";}catch(e){const o=document.getElementById("output");if(o)o.innerHTML=`<p class="error">Error generating lineup: ${e.message}</p>`;}}
         function generateBattingOrder(){try{const e=document.querySelectorAll('.batting-order select');const t=document.getElementById("output");const o=new Set();t.innerHTML+="<h3>Batting Order:</h3>";let n="";for(let t=0;t<e.length;t++){const r=e[t].value;if(r&&r!=="None"){if(o.has(r))throw new Error(`Duplicate player ${r} in batting order.`);o.add(r);n+=`<p>${t+1}: ${r}</p>`;}}n?t.innerHTML+=n:t.innerHTML+="<p>No players assigned to batting order.</p>";}catch(e){const t=document.getElementById("output");if(t)t.innerHTML+=`<p class="error">Error generating batting order: ${e.message}</p>`;}}
+        function generateVisual() {
+            try {
+                const lineup = {};
+                const pitcher = document.getElementById("pitcher").value;
+                if (!pitcher) throw new Error("Please select a Pitcher to generate the visual.");
+                lineup["P"] = pitcher;
+                const assignedPlayers = new Set([pitcher]);
+                const ehOutSet = new Set();
+                const ehOutSelections = [
+                    document.getElementById("ehOut1").value,
+                    document.getElementById("ehOut2").value,
+                    document.getElementById("ehOut3").value,
+                    document.getElementById("ehOut4").value
+                ];
+                for (let i = 0; i < ehOutSelections.length; i++) {
+                    const player = ehOutSelections[i];
+                    if (player) {
+                        if (player === pitcher) throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as Pitcher.`);
+                        if (ehOutSet.has(player) || assignedPlayers.has(player)) throw new Error(`Cannot assign ${player} as EH/OUT: they are already assigned.`);
+                        ehOutSet.add(player);
+                        assignedPlayers.add(player);
+                    }
+                }
+                let availablePlayers = players.filter(p => !assignedPlayers.has(p));
+                const overrides = {};
+                positions.slice(1).forEach(pos => {
+                    const overrideSelect = document.getElementById(`${pos}-override`);
+                    if (overrideSelect) {
+                        const player = overrideSelect.value;
+                        if (player) {
+                            if (!availablePlayers.includes(player)) throw new Error(`Cannot override ${pos} with ${player}: ${player} is already assigned to EH/OUT or Pitcher.`);
+                            overrides[pos] = player;
+                            assignedPlayers.add(player);
+                        }
+                    }
+                });
+                for (const [pos, player] of Object.entries(overrides)) lineup[pos] = player;
+                availablePlayers = players.filter(p => !assignedPlayers.has(p));
+                const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
+                for (const pos of remainingPositions) {
+                    const bestPlayer = getBestPlayer(pos, assignedPlayers, availablePlayers);
+                    if (!bestPlayer) throw new Error(`Not enough players available for ${pos}.`);
+                    lineup[pos] = bestPlayer;
+                    assignedPlayers.add(bestPlayer);
+                }
+                const ehOutPlayers = Array.from(ehOutSet);
+                while (ehOutPlayers.length < 4 && availablePlayers.length > 0) {
+                    ehOutPlayers.push(availablePlayers.shift());
+                    assignedPlayers.add(ehOutPlayers[ehOutPlayers.length - 1]);
+                }
+                lineup["EH/OUT"] = ehOutPlayers;
+
+                const battingOrder = [];
+                const battingSelects = document.querySelectorAll('.batting-order select');
+                for (let i = 0; i < battingSelects.length; i++) {
+                    const player = battingSelects[i].value;
+                    if (player && player !== "None") battingOrder.push(player);
+                }
+
+                const canvas = document.getElementById("fieldCanvas");
+                const ctx = canvas.getContext("2d");
+                drawBaseballDiamond(ctx, lineup, ehOutPlayers, battingOrder);
+            } catch (e) {
+                const output = document.getElementById("output");
+                if (output) output.innerHTML += `<p class="error">Error generating visual: ${e.message}</p>`;
+            }
+        }
         document.addEventListener("DOMContentLoaded",()=>{console.log("DOMContentLoaded event fired");populateOverrides();const e=document.getElementById("ehOutSelections");if(e){const t=e.getElementsByTagName("select");for(let e of t)e.innerHTML=`<option value="">None</option>${players.map(e=>`<option value="${e}">${e}</option>`).join("")}`;}});
     </script>
 </body>
