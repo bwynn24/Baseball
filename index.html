@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 12:35 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 12:46 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -200,12 +200,13 @@
                 }
             }
 
-            // Display EH/OUT from generated lineup at bottom right (limited to 3)
+            // Display EH/OUT players not assigned to defensive positions at bottom right (limited to 3)
             ctx.fillStyle = "#000080"; // Navy for EH/OUT text
             ctx.textAlign = "right";
             ctx.fillText("EH / OUT:", 380, 340); // Label above the list
-            const ehOutPlayers = lineup["EH/OUT"] || [];
-            ehOutPlayers.slice(0, 3).forEach((player, index) => { // Limit to first 3 players
+            const assignedPlayers = new Set(Object.values(lineup).filter(p => p && p !== "EH/OUT"));
+            const ehOutPlayers = players.filter(p => !assignedPlayers.has(p)).slice(0, 3);
+            ehOutPlayers.forEach((player, index) => {
                 ctx.fillText(player, 380, 355 + (index * 15)); // Start at y=355 with 15px spacing
             });
             ctx.textAlign = "center"; // Reset text alignment
