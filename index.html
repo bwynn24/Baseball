@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defensive Lineup Optimizer</title>
+    <title>Baseball Optimizer</title>
     <style>
         :root {
             --background-color: #f4f4f4;
@@ -56,8 +56,8 @@
     </style>
 </head>
 <body>
-    <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:35 PM CDT, Thursday, September 25, 2025</div>
+    <h1>Baseball Optimizer</h1>
+    <div class="timestamp">Last Logic Update: 07:21 AM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -183,10 +183,10 @@
                 "RF": { x: 300, y: 100 }
             };
 
-            ctx.fillStyle = "#333333"; // Dark gray for text
+            ctx.fillStyle = "#000080"; // Navy for text
             // Draw batting order on the far left with header
             ctx.textAlign = "left";
-            ctx.fillText("Batting Order", 10, 10);
+            ctx.fillText("Batting Order", 10, 10); // Header above batting order
             battingOrder.forEach((player, index) => {
                 if (player && player !== "None") {
                     ctx.fillText(`${index + 1}: ${player}`, 10, 25 + index * 15);
@@ -201,7 +201,7 @@
                     ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
                     ctx.fillStyle = "#FFFFFF";
                     ctx.fill();
-                    ctx.fillStyle = "#333333"; // Dark gray for position and player names
+                    ctx.fillStyle = "#000080"; // Navy for position and player names
                     ctx.fillText(pos, coords.x, coords.y - 20);
                     ctx.fillText(player, coords.x, coords.y + 20);
                 }
