@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 07:28 AM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 09:02 AM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -200,13 +200,15 @@
                 }
             }
 
-            // EH/OUT on the right
-            ctx.fillText("EH/OUT:", 380, 350);
-            ehOutSelections.forEach((player, index) => {
-                if (player && player !== "None") {
-                    ctx.fillText(player, 380, 370 + index * 12);
-                }
+            // Display EH/OUT selections at bottom right
+            ctx.fillStyle = "#000080"; // Navy for EH/OUT text
+            ctx.textAlign = "right";
+            ctx.fillText("EH/OUT:", 380, 340); // Label above the list
+            const ehOutPlayers = ehOutSelections.filter(player => player && player !== "None").slice(0, 4); // Filter out "None" and limit to 4
+            ehOutPlayers.forEach((player, index) => {
+                ctx.fillText(player, 380, 355 + (index * 15)); // Start at y=355 with 15px spacing
             });
+            ctx.textAlign = "center"; // Reset text alignment
         }
         function generateLineup(){try{const e=document.getElementById("pitcher").value;const t=document.getElementById("output");t.innerHTML="";if(!e)throw new Error("Please select a Pitcher to generate the lineup.");const o={"P":e};const n=new Set([e]);const r=new Set();const a=[document.getElementById("ehOut1").value,document.getElementById("ehOut2").value,document.getElementById("ehOut3").value,document.getElementById("ehOut4").value];for(let e=0;e<a.length;e++){const t=a[e];if(t){if(t===e)throw new Error(`Cannot assign ${t} as EH/OUT: they are already selected as Pitcher.`);if(r.has(t)||n.has(t))throw new Error(`Cannot assign ${t} as EH/OUT: they are already assigned.`);r.add(t);n.add(t);}}let l=players.filter(e=>!n.has(e));const i={};positions.slice(1).forEach(e=>{const t=document.getElementById(`${e}-override`);if(t){const o=t.value;if(o){if(!l.includes(o))throw new Error(`Cannot override ${e} with ${o}: ${o} is already assigned to EH/OUT or Pitcher.`);i[e]=o;n.add(o);}}});for(const[e,t]of Object.entries(i))o[e]=t;l=players.filter(e=>!n.has(e));const s=positions.filter(e=>!o.hasOwnProperty(e));for(const e of s){const t=getBestPlayer(e,n,l);if(!t)throw new Error(`Not enough players available for ${e}.`);o[e]=t;n.add(t);}const c=players.filter(e=>!n.has(e));const d=Array.from(r);while(d.length<4&&c.length>0){d.push(c.shift());n.add(d[d.length-1]);}o["EH/OUT"]=d;const u=Object.keys(o).length-1;if(u!==9)throw new Error(`Incorrect number of on-field players: expected 9, got ${u}.`);if(n.size>12)throw new Error("Duplicate players detected or too many assignments.");t.innerHTML="<h3>Lineup:</h3>";for(const[e,n]of Object.entries(o))e!=="EH/OUT"?t.innerHTML+=`<p>${e}: ${n}</p>`:0;t.innerHTML+="<h3>EH / OUT:</h3><p>"+d.join(", ")+"</p>";}catch(e){const o=document.getElementById("output");if(o)o.innerHTML=`<p class="error">Error generating lineup: ${e.message}</p>`;}}
         function generateBattingOrder(){try{const e=document.querySelectorAll('.batting-order select');const t=document.getElementById("output");const o=new Set();t.innerHTML+="<h3>Batting Order:</h3>";let n="";for(let t=0;t<e.length;t++){const r=e[t].value;if(r&&r!=="None"){if(o.has(r))throw new Error(`Duplicate player ${r} in batting order.`);o.add(r);n+=`<p>${t+1}: ${r}</p>`;}}n?t.innerHTML+=n:t.innerHTML+="<p>No players assigned to batting order.</p>";}catch(e){const t=document.getElementById("output");if(t)t.innerHTML+=`<p class="error">Error generating batting order: ${e.message}</p>`;}}
