@@ -45,7 +45,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background: var(--container-background);
             padding: 20px;
@@ -84,7 +84,6 @@
             color: white;
             border: none;
             cursor: pointer;
-            max-width: 200px;
         }
 
         button:hover {
@@ -141,65 +140,24 @@
             margin-top: 20px;
         }
 
-        .batting-order label {
-            font-size: 16px;
-            margin-right: 10px;
-        }
-
         .batting-order select {
             max-width: 200px;
             display: inline-block;
             margin-right: 15px;
         }
 
-        .combined-visual {
-            display: flex;
-            margin: 20px auto;
-            width: 100%;
-            max-width: 900px;
-            border: 1px solid var(--border-color);
-            background-color: var(--container-background);
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-
-        .batting-column {
-            width: 30%;
-            padding: 10px;
-            text-align: left;
-            min-width: 200px;
-        }
-
-        .field-visual {
-            width: 70%;
-            padding: 10px;
-            text-align: center;
-            min-width: 400px;
-        }
-
-        #combinedCanvas {
-            display: block;
-            width: 100%;
-            height: 400px;
-            border: 1px solid var(--border-color);
-        }
-
-        @media (max-width: 900px) {
-            .combined-visual {
-                flex-direction: column;
-            }
-            .batting-column, .field-visual {
-                width: 100%;
-                min-width: 0;
-            }
-            #combinedCanvas {
-                height: 300px;
-            }
+        .batting-order .order-number {
+            display: inline-block;
+            width: 30px;
+            text-align: right;
+            margin-right: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 09:51 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 09:58 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -262,70 +220,59 @@
             </div>
         </div>
 
-        <button onclick="generateDefensiveLineup()">Generate Defensive Lineup</button>
+        <button onclick="generateLineup()">Generate Lineup</button>
+
         <div id="output"></div>
         <canvas id="fieldCanvas" width="400" height="500"></canvas>
 
         <div class="section batting-order">
             <h3>Batting Order</h3>
             <div>
-                <label for="batting1">1:</label>
-                <select id="batting1" onchange="updateBattingOptions()">
+                <span class="order-number">1</span><select id="batting1" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting2">2:</label>
-                <select id="batting2" onchange="updateBattingOptions()">
+                <span class="order-number">2</span><select id="batting2" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting3">3:</label>
-                <select id="batting3" onchange="updateBattingOptions()">
+                <span class="order-number">3</span><select id="batting3" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting4">4:</label>
-                <select id="batting4" onchange="updateBattingOptions()">
+                <span class="order-number">4</span><select id="batting4" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting5">5:</label>
-                <select id="batting5" onchange="updateBattingOptions()">
+                <span class="order-number">5</span><select id="batting5" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting6">6:</label>
-                <select id="batting6" onchange="updateBattingOptions()">
+                <span class="order-number">6</span><select id="batting6" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting7">7:</label>
-                <select id="batting7" onchange="updateBattingOptions()">
+                <span class="order-number">7</span><select id="batting7" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting8">8:</label>
-                <select id="batting8" onchange="updateBattingOptions()">
+                <span class="order-number">8</span><select id="batting8" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting9">9:</label>
-                <select id="batting9" onchange="updateBattingOptions()">
+                <span class="order-number">9</span><select id="batting9" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting10">10:</label>
-                <select id="batting10" onchange="updateBattingOptions()">
+                <span class="order-number">10</span><select id="batting10" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting11">11:</label>
-                <select id="batting11" onchange="updateBattingOptions()">
+                <span class="order-number">11</span><select id="batting11" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
-                <label for="batting12">12:</label>
-                <select id="batting12" onchange="updateBattingOptions()">
+                <span class="order-number">12</span><select id="batting12" onchange="updateBattingOptions()">
                     <option value="">None</option>
                     ${players.map(player => `<option value="${player}">${player}</option>`).join("")}
                 </select>
@@ -333,17 +280,6 @@
         </div>
 
         <button onclick="generateBattingOrder()">Generate Batting Order</button>
-
-        <div id="combinedVisual" class="combined-visual" style="display: none;">
-            <div class="batting-column">
-                <h3>Batting Order</h3>
-                ${Array.from({ length: 12 }, (_, i) => `<p>${i + 1}: <span id="battingVisual${i + 1}"></span></p>`).join('')}
-            </div>
-            <div class="field-visual">
-                <h3>Field Positions</h3>
-                <canvas id="combinedCanvas" width="600" height="400"></canvas>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -363,9 +299,6 @@
 
         const positions = ["P", "C", "SS", "1B", "3B", "2B", "CF", "LF", "RF"]; // Priority order: Pitcher, Catcher, Shortstop, 1st Base, 3rd Base, 2nd Base, Center Field, Left Field, Right Field
 
-        let lastLineup = {};
-        let lastEhOut = [];
-
         // Theme toggle functionality
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -381,7 +314,6 @@
             populateOverrides();
             populateEhOutSelections();
             initializeBattingOptions();
-            updateCombinedVisual(); // Update visual on load if data exists
         });
 
         // Dynamically create override dropdowns
@@ -470,23 +402,23 @@
                 rankings[position][player] < rankings[position][best] ? player : best, candidates[0]);
         }
 
-        // Draw the baseball diamond with player positions and EH/OUT
+        // Draw the baseball diamond with player positions and EH/OUT (exactly 4 players) at bottom right
         function drawBaseballDiamond(ctx, lineup, ehOutPlayers) {
-            ctx.clearRect(0, 0, 600, 400);
+            ctx.clearRect(0, 0, 400, 500);
 
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
             ctx.fillStyle = "#2ecc71";
-            ctx.fillRect(0, 0, 600, 400);
+            ctx.fillRect(0, 0, 400, 500);
 
             ctx.fillStyle = "#d2b48c";
             ctx.beginPath();
-            ctx.moveTo(300, 80);
-            ctx.lineTo(450, 180);
-            ctx.lineTo(300, 280);
-            ctx.lineTo(150, 180);
+            ctx.moveTo(200, 100);
+            ctx.lineTo(300, 200);
+            ctx.lineTo(200, 300);
+            ctx.lineTo(100, 200);
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = "#ffffff";
@@ -495,29 +427,29 @@
 
             ctx.fillStyle = "#d2b48c";
             ctx.beginPath();
-            ctx.arc(300, 180, 10, 0, Math.PI * 2);
+            ctx.arc(200, 200, 10, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.beginPath();
-            ctx.arc(300, 180, 120, Math.PI, 0);
+            ctx.arc(200, 200, 100, Math.PI, 0);
             ctx.stroke();
 
             const positionCoords = {
-                "P": { x: 300, y: 180 },
-                "C": { x: 300, y: 280 },
-                "1B": { x: 420, y: 200 },
-                "2B": { x: 360, y: 150 },
-                "3B": { x: 180, y: 200 },
-                "SS": { x: 240, y: 140 },
-                "LF": { x: 150, y: 80 },
-                "CF": { x: 300, y: 40 },
-                "RF": { x: 450, y: 80 }
+                "P": { x: 200, y: 200 },
+                "C": { x: 200, y: 320 },
+                "1B": { x: 280, y: 220 },
+                "2B": { x: 240, y: 170 },
+                "3B": { x: 120, y: 220 },
+                "SS": { x: 160, y: 160 },
+                "LF": { x: 100, y: 100 },
+                "CF": { x: 200, y: 50 },
+                "RF": { x: 300, y: 100 }
             };
 
             for (const [pos, player] of Object.entries(lineup)) {
                 if (pos !== "EH/OUT") {
                     const coords = positionCoords[pos];
-                    if (coords && player) {
+                    if (coords) {
                         ctx.fillStyle = "#ffffff";
                         ctx.beginPath();
                         ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
@@ -531,15 +463,15 @@
 
             ctx.fillStyle = "#000000";
             ctx.textAlign = "right";
-            ctx.fillText("EH/OUT:", 570, 350);
+            ctx.fillText("EH/OUT:", 380, 400);
             ehOutPlayers.slice(0, 4).forEach((player, index) => {
-                if (player) ctx.fillText(player, 570, 370 + (index * 12));
+                ctx.fillText(player, 380, 420 + (index * 15));
             });
             ctx.textAlign = "center";
         }
 
-        // Generate defensive lineup
-        function generateDefensiveLineup() {
+        // Generate lineup with overrides prioritized, then position priorities, no duplicates
+        function generateLineup() {
             try {
                 const pitcher = document.getElementById("pitcher").value;
                 const outputDiv = document.getElementById("output");
@@ -552,7 +484,7 @@
                 const lineup = {"P": pitcher};
                 const assignedPlayers = new Set([pitcher]);
 
-                // Collect EH/OUT selections
+                // Step 1: Collect EH/OUT selections first, ensuring no duplicates
                 const ehOutPlayers = new Set();
                 const ehOutSelections = [
                     document.getElementById("ehOut1").value,
@@ -575,17 +507,18 @@
                     }
                 }
 
+                // Step 2: Create available players pool
                 let availablePlayers = players.filter(p => !assignedPlayers.has(p));
 
-                // Apply overrides
+                // Step 3: Collect and apply overrides first
                 const overrides = {};
-                positions.slice(1).forEach(pos => {
+                positions.slice(1).forEach(pos => { // Skip Pitcher since it's already set
                     const overrideElement = document.getElementById(`${pos}-override`);
                     if (overrideElement) {
                         const overridePlayer = overrideElement.value;
                         if (overridePlayer) {
                             if (!availablePlayers.includes(overridePlayer)) {
-                                throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned.`);
+                                throw new Error(`Cannot override ${pos} with ${overridePlayer}: ${overridePlayer} is already assigned to EH/OUT or Pitcher.`);
                             }
                             overrides[pos] = overridePlayer;
                             assignedPlayers.add(overridePlayer);
@@ -593,12 +526,13 @@
                     }
                 });
 
+                // Step 4: Apply overrides to lineup
                 for (const [pos, player] of Object.entries(overrides)) {
                     lineup[pos] = player;
                 }
 
-                // Fill remaining positions
-                availablePlayers = players.filter(p => !assignedPlayers.has(p));
+                // Step 5: Fill remaining positions based on priority order
+                availablePlayers = players.filter(p => !assignedPlayers.has(p)); // Recalculate available players after overrides
                 const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
                 for (const pos of remainingPositions) {
                     const player = getBestPlayer(pos, assignedPlayers, availablePlayers);
@@ -607,7 +541,7 @@
                     assignedPlayers.add(player);
                 }
 
-                // Build EH/OUT list to exactly 4
+                // Step 6: Compute unassigned players and build EH/OUT list to exactly 4
                 const notAssignedPlayers = players.filter(p => !assignedPlayers.has(p));
                 const finalEhOutPlayers = Array.from(ehOutPlayers);
                 while (finalEhOutPlayers.length < 4 && notAssignedPlayers.length > 0) {
@@ -616,8 +550,8 @@
                 }
                 lineup["EH/OUT"] = finalEhOutPlayers;
 
-                // Verify lineup
-                const onFieldPlayers = Object.keys(lineup).length - 1;
+                // Step 7: Verify correct number of on-field players
+                const onFieldPlayers = Object.keys(lineup).length - 1; // Exclude EH/OUT from count
                 if (onFieldPlayers !== 9) {
                     throw new Error(`Incorrect number of on-field players: expected 9, got ${onFieldPlayers}.`);
                 }
@@ -625,7 +559,7 @@
                     throw new Error("Duplicate players detected or too many assignments.");
                 }
 
-                // Display lineup
+                // Step 8: Display the lineup as text
                 outputDiv.innerHTML = "<h3>Lineup:</h3>";
                 for (const [pos, player] of Object.entries(lineup)) {
                     if (pos !== "EH/OUT") {
@@ -635,13 +569,8 @@
                 outputDiv.innerHTML += "<h3>EH / OUT:</h3>";
                 outputDiv.innerHTML += `<p>${finalEhOutPlayers.join(", ")}</p>`;
 
-                // Draw field canvas
+                // Step 9: Draw the baseball diamond
                 drawBaseballDiamond(document.getElementById("fieldCanvas").getContext("2d"), lineup, finalEhOutPlayers);
-
-                // Update last lineup and EH/OUT
-                lastLineup = { ...lineup };
-                lastEhOut = [...finalEhOutPlayers];
-                updateCombinedVisual();
 
             } catch (error) {
                 const outputDiv = document.getElementById("output");
@@ -655,59 +584,32 @@
         function generateBattingOrder() {
             try {
                 const battingSelects = document.querySelectorAll('.batting-order select');
-                const battingOrder = {};
+                const outputDiv = document.getElementById("output");
                 const assignedPlayers = new Set();
 
+                outputDiv.innerHTML += "<h3>Batting Order:</h3>";
+                let orderText = "";
                 for (let i = 0; i < battingSelects.length; i++) {
                     const player = battingSelects[i].value;
                     if (player && player !== "None") {
                         if (assignedPlayers.has(player)) {
                             throw new Error(`Duplicate player ${player} in batting order.`);
                         }
-                        battingOrder[i + 1] = player;
                         assignedPlayers.add(player);
+                        orderText += `<p>${i + 1}: ${player}</p>`;
                     }
                 }
-
-                // Update combined visual
-                updateCombinedVisual();
+                if (orderText) {
+                    outputDiv.innerHTML += orderText;
+                } else {
+                    outputDiv.innerHTML += "<p>No players assigned to batting order.</p>";
+                }
 
             } catch (error) {
                 const outputDiv = document.getElementById("output");
                 if (outputDiv) {
                     outputDiv.innerHTML += `<p class="error">Error generating batting order: ${error.message}</p>`;
                 }
-            }
-        }
-
-        // Update combined visual based on available data
-        function updateCombinedVisual() {
-            const combinedVisual = document.getElementById("combinedVisual");
-            const combinedCanvas = document.getElementById("combinedCanvas").getContext("2d");
-            const battingSelects = document.querySelectorAll('.batting-order select');
-
-            // Show visual if either lineup or batting order has data
-            if (Object.keys(lastLineup).length > 0 || battingSelects.some(select => select.value)) {
-                combinedVisual.style.display = 'flex';
-
-                // Update batting order
-                for (let i = 0; i < 12; i++) {
-                    document.getElementById(`battingVisual${i + 1}`).textContent = battingSelects[i].value || 'None';
-                }
-
-                // Draw baseball diamond if lineup exists
-                if (Object.keys(lastLineup).length > 0) {
-                    drawBaseballDiamond(combinedCanvas, lastLineup, lastEhOut);
-                } else {
-                    combinedCanvas.clearRect(0, 0, 600, 400);
-                    combinedCanvas.fillStyle = "#2ecc71";
-                    combinedCanvas.fillRect(0, 0, 600, 400);
-                    combinedCanvas.fillStyle = "#000000";
-                    combinedCanvas.textAlign = "center";
-                    combinedCanvas.fillText("No Defensive Lineup Generated", 300, 200);
-                }
-            } else {
-                combinedVisual.style.display = 'none';
             }
         }
 
