@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Baseball Lineup Optimizer</title>
   <style>
     :root {
@@ -16,193 +16,400 @@
       --error-color: red;
       --timestamp-color: #555;
     }
-    body { font-family: Arial, sans-serif; margin: 10px; background: var(--background-color); color: var(--text-color); }
-    h1 { text-align: center; font-size: 1.6em; margin-bottom: 0; }
-    h2 { text-align: center; font-size: 1em; font-style: italic; margin-top: 2px; }
-    .timestamp { text-align: center; font-size: 0.9em; color: var(--timestamp-color); margin: 8px 0; }
-    .container { max-width: 100%; margin: auto; padding: 12px; background: var(--container-background); border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    label { font-weight: bold; margin-top: 6px; display: block; }
-    select, button { padding: 8px; margin: 4px 0; width: 100%; max-width: 250px; font-size: 1em; border: 1px solid var(--border-color); border-radius: 4px; background: var(--container-background); color: var(--text-color); }
-    button { background: var(--button-background); color: #fff; cursor: pointer; }
-    button:hover { background: var(--button-hover-background); }
-    #fieldCanvas { display: block; margin: 20px auto; border: 1px solid var(--border-color); }
-    .batting-order table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    [data-theme="dark"] {
+      --background-color: #1a1a1a;
+      --container-background: #2c2c2c;
+      --text-color: #e0e0e0;
+      --border-color: #555;
+      --button-background: #388E3C;
+      --button-hover-background: #2E7D32;
+      --output-background: #333;
+      --error-color: #ff5555;
+      --timestamp-color: #d3d3d3;
+    }
+    body { font-family: Arial, sans-serif; margin: 10px; background-color: var(--background-color); color: var(--text-color); transition: all 0.3s; }
+    h1 { text-align: center; font-size: 1.6em; margin-bottom: 2px; }
+    .byline { text-align: center; font-style: italic; margin-bottom: 6px; opacity: 0.9; }
+    .timestamp { text-align: center; font-size: 0.9em; color: var(--timestamp-color); margin-bottom: 8px; }
+    .container { max-width: 100%; margin: 0 auto; background: var(--container-background); padding: 10px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .section { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 1em; color: var(--text-color); }
+    select, button { padding: 8px; margin-bottom: 5px; width: 100%; max-width: 250px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1em; color: var(--text-color); background-color: var(--container-background); transition: all 0.3s; }
+    button { background-color: var(--button-background); color: white; border: none; cursor: pointer; }
+    button:hover { background-color: var(--button-hover-background); }
+    #output { margin-top: 15px; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--output-background); font-size: 0.95em; }
+    .error { color: var(--error-color); font-weight: bold; }
+    #fieldCanvas { display: block; margin: 15px auto; max-width: 100%; height: auto; border: 1px solid var(--border-color); }
+    .theme-toggle { display: block; margin: 10px auto; padding: 8px 16px; background-color: var(--button-background); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+    .theme-toggle:hover { background-color: var(--button-hover-background); }
+    .batting-order { margin-top: 15px; }
+    .batting-order table { width: 100%; border-collapse: collapse; }
     .batting-order th, .batting-order td { padding: 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
     .batting-order th { width: 30px; }
-    .theme-toggle { display: block; margin: 10px auto; padding: 8px 14px; background: var(--button-background); color: white; border: none; border-radius: 4px; }
+    .batting-order td { width: auto; }
+    .batting-order td select { width: 100%; max-width: 200px; }
+    @media (max-width: 600px) {
+      #fieldCanvas { width: 100%; height: auto; max-height: 300px; }
+      select, button { max-width: 100%; }
+      .batting-order th, .batting-order td { display: block; width: 100%; }
+      .batting-order td select { margin-top: 5px; }
+    }
   </style>
 </head>
 <body>
   <h1>Baseball Lineup Optimizer</h1>
-  <h2>created by Blake Wynn</h2>
+  <div class="byline"><em>created by Blake Wynn</em></div>
   <div class="timestamp" id="lastUpdate">Last Logic Update: —</div>
+
   <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 
   <div class="container">
-    <div class="batting-order">
+    <!-- Batting Order -->
+    <div class="section batting-order">
       <h3>Batting Order</h3>
       <table id="battingTable"></table>
       <button onclick="generateBattingOrder()">Generate Batting Order</button>
     </div>
 
-    <label for="pitcher">Select Pitcher:</label>
-    <select id="pitcher"></select>
+    <!-- Pitcher -->
+    <div class="section">
+      <label for="pitcher">Select Pitcher:</label>
+      <select id="pitcher">
+        <option value="">None</option>
+        <option value="Hunter">Hunter</option>
+        <option value="Luke">Luke</option>
+        <option value="Nathan">Nathan</option>
+        <option value="Evan">Evan</option>
+        <option value="Sproles">Sproles</option>
+        <option value="Fluitt">Fluitt</option>
+        <option value="Thomas">Thomas</option>
+        <option value="Tony">Tony</option>
+        <option value="Jackie">Jackie</option>
+        <option value="King">King</option>
+        <option value="Dominic">Dominic</option>
+        <option value="Becket">Becket</option>
+      </select>
+    </div>
 
-    <h3>Overrides (Optional)</h3>
-    <div id="overrides"></div>
+    <!-- Overrides -->
+    <div class="section"><h3>Overrides (Optional)</h3><div id="overrides"></div></div>
 
-    <h3>EH / OUT (Optional)</h3>
-    <div>
-      <select id="ehOut1"></select>
-      <select id="ehOut2"></select>
-      <select id="ehOut3"></select>
+    <!-- EH / OUT -->
+    <div class="section"><h3>EH / OUT Selections (Optional)</h3>
+      <div id="ehOutSelections">
+        <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1"></select></div>
+        <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2"></select></div>
+        <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3"></select></div>
+      </div>
     </div>
 
     <button onclick="generateLineup()">Generate Lineup</button>
-    <button onclick="generateVisual()">Generate Visual</button>
+    <div id="output"></div>
+
     <canvas id="fieldCanvas" width="400" height="400"></canvas>
+    <div class="section"><button onclick="generateVisual()">Generate Visual</button></div>
   </div>
 
   <script>
-    const players = ["Becket","Dominic","Evan","Fluitt","Hunter","Jackie","King","Luke","Nathan","Sproles","Thomas","Tony"].sort();
+    // --- Data ---
+    const players=["Hunter","Luke","Nathan","Evan","Sproles","Fluitt","Thomas","Tony","Jackie","King","Dominic","Becket"];
+    const rankings={
+      "P":{"Nathan":1,"Luke":2,"Hunter":3,"Dominic":4,"King":5,"Becket":6,"Jackie":7,"Tony":8,"Sproles":9,"Fluitt":10,"Evan":11,"Thomas":12},
+      "C":{"Jackie":1,"Nathan":2,"Dominic":3,"Tony":4,"Luke":5,"Fluitt":6,"Becket":7,"Thomas":8,"Sproles":9,"Evan":10,"King":11,"Hunter":12},
+      "SS":{"Luke":1,"Nathan":2,"Dominic":3,"Becket":4,"Jackie":5,"Tony":6,"Sproles":7,"Hunter":8,"Fluitt":9,"King":10,"Evan":11,"Thomas":12},
+      "2B":{"Luke":1,"Becket":2,"Evan":3,"Dominic":4,"Sproles":5,"Nathan":6,"Thomas":7,"Tony":8,"Jackie":9,"Hunter":10,"King":11,"Fluitt":12},
+      "3B":{"Jackie":1,"Nathan":2,"Hunter":3,"Tony":4,"Fluitt":5,"Dominic":6,"Becket":7,"King":8,"Sproles":9,"Luke":10,"Thomas":11,"Evan":12},
+      "1B":{"Hunter":1,"King":2,"Evan":3,"Tony":4,"Dominic":5,"Sproles":6,"Luke":7,"Jackie":8,"Fluitt":9,"Nathan":10,"Becket":11,"Thomas":12},
+      "CF":{"Dominic":1,"Jackie":2,"Sproles":3,"Becket":4,"King":5,"Fluitt":6,"Luke":7,"Nathan":8,"Tony":9,"Thomas":10,"Hunter":11,"Evan":12},
+      "LF":{"Sproles":1,"Jackie":2,"Dominic":3,"Tony":4,"King":5,"Fluitt":6,"Luke":7,"Becket":8,"Hunter":9,"Nathan":10,"Thomas":11,"Evan":12},
+      "RF":{"Sproles":1,"King":2,"Thomas":3,"Nathan":4,"Luke":5,"Dominic":6,"Jackie":7,"Fluitt":8,"Tony":9,"Becket":10,"Hunter":11,"Evan":12}
+    };
+    const positions=["P","C","SS","1B","3B","2B","CF","LF","RF"]; // priority order
 
-    const positions = ["P","C","SS","1B","3B","2B","CF","LF","RF"];
+    // Batting order: alphabetical, no repeats
+    const sortedPlayers=[...players].sort((a,b)=>a.localeCompare(b));
 
-    function toggleTheme() {
-      const cur = document.documentElement.getAttribute("data-theme");
-      document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+    // --- Theme ---
+    function toggleTheme(){
+      const t=document.documentElement.getAttribute("data-theme");
+      const next=t==="dark"?"light":"dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
     }
 
-    function getCurrentTimestamp() {
-      return new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
-    }
-
-    // Build batting order table
-    function initBattingTable() {
-      const table = document.getElementById("battingTable");
-      table.innerHTML = players.map((_,i)=>
-        `<tr><th>${i+1}</th>
-          <td><select id="batting${i+1}" onchange="updateBattingDropdowns()"></select></td>
-        </tr>`
-      ).join("");
-      updateBattingDropdowns();
-    }
-
-    // Update batting order dropdowns with filtering
-    function updateBattingDropdowns() {
-      const selected = [];
-      for(let i=1;i<=12;i++){
-        const sel=document.getElementById("batting"+i);
-        if(!sel) continue;
-        if(sel.value) selected.push(sel.value);
-      }
-      for(let i=1;i<=12;i++){
-        const sel=document.getElementById("batting"+i);
-        if(!sel) continue;
-        const current=sel.value;
-        sel.innerHTML = `<option value="">None</option>` +
-          players.filter(p=>!selected.includes(p) || p===current)
-                 .map(p=>`<option ${p===current?"selected":""}>${p}</option>`).join("");
-      }
-    }
-
-    function initDropdowns() {
-      document.getElementById("pitcher").innerHTML =
-        `<option value="">None</option>${players.map(p=>`<option>${p}</option>`).join("")}`;
-      const overridesDiv = document.getElementById("overrides");
-      overridesDiv.innerHTML = positions.map(pos =>
-        `<label>${pos}:</label><select id="${pos}-override">
-          <option value="">None</option>${players.map(p=>`<option>${p}</option>`).join("")}
-        </select>`).join("");
-      ["ehOut1","ehOut2","ehOut3"].forEach(id=>{
-        document.getElementById(id).innerHTML =
-          `<option value="">None</option>${players.map(p=>`<option>${p}</option>`).join("")}`;
+    // --- Time formatting (Central) ---
+    function centralFormatted(d=new Date()){
+      return d.toLocaleString('en-US', {
+        timeZone: 'America/Chicago',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZoneName: 'short' // CST/CDT
       });
     }
 
-    function drawField(lineup, battingOrder, timestamp) {
-      const canvas = document.getElementById("fieldCanvas");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0,0,400,400);
+    // Persistence for Last Logic Update
+    const LOGIC_TS_KEY = 'last_logic_update_ts';
 
-      // Grass
-      const grad = ctx.createLinearGradient(0,0,0,400);
-      grad.addColorStop(0,"#90EE90");
-      grad.addColorStop(1,"#32CD32");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0,0,400,400);
+    function loadLogicTimestamp(){
+      const saved = localStorage.getItem(LOGIC_TS_KEY);
+      const el = document.getElementById("lastUpdate");
+      if(saved){
+        el.innerText = "Last Logic Update: " + saved;
+      } else {
+        el.innerText = "Last Logic Update: —";
+      }
+    }
+
+    function setLogicTimestampNow(){
+      const ts = centralFormatted();
+      localStorage.setItem(LOGIC_TS_KEY, ts);
+      document.getElementById("lastUpdate").innerText = "Last Logic Update: " + ts;
+    }
+
+    // --- Batting table (alphabetical, unique selections) ---
+    function buildBattingTable(){
+      const tbl=document.getElementById("battingTable");
+      let html="";
+      for(let i=1;i<=12;i++){
+        html += `<tr>
+          <th>${i}</th>
+          <td><select id="batting${i}" onchange="updateBattingOptions()"></select></td>
+        </tr>`;
+      }
+      tbl.innerHTML=html;
+      updateBattingOptions(); // populate initial options
+    }
+    function updateBattingOptions(){
+      // Capture current selections
+      const curSel={}, chosen=new Set();
+      for(let i=1;i<=12;i++){
+        const sel=document.getElementById("batting"+i);
+        curSel[i]=sel.value||"";
+        if(curSel[i]) chosen.add(curSel[i]);
+      }
+      // Rebuild each select: None + alphabetized players not chosen elsewhere (allow keeping current)
+      for(let i=1;i<=12;i++){
+        const sel=document.getElementById("batting"+i);
+        const keep=curSel[i];
+        sel.innerHTML="";
+        // None
+        const none=document.createElement("option"); none.value=""; none.textContent="None"; sel.appendChild(none);
+        sortedPlayers.forEach(p=>{
+          if(!chosen.has(p) || p===keep){
+            const opt=document.createElement("option"); opt.value=p; opt.textContent=p; sel.appendChild(opt);
+          }
+        });
+        sel.value = (keep && [...sel.options].some(o=>o.value===keep)) ? keep : "";
+      }
+    }
+
+    // --- Overrides / EH population ---
+    function populateOverrides(){
+      const container=document.getElementById("overrides");
+      container.innerHTML="";
+      positions.forEach(pos=>{
+        const div=document.createElement("div");
+        div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label>
+          <select id="${pos}-override">
+            <option value="">None</option>
+            ${players.map(p=>`<option value="${p}">${p}</option>`).join("")}
+          </select>`;
+        container.appendChild(div);
+      });
+    }
+    function populateEhOutSelections(){
+      const container=document.getElementById("ehOutSelections");
+      const selects=container.getElementsByTagName("select");
+      for(const s of selects){
+        s.innerHTML = `<option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}`;
+      }
+    }
+
+    // --- Helpers for lineup computation ---
+    function getBestPlayer(pos, assignedSet){
+      const candidates = players.filter(p=>!assignedSet.has(p));
+      if(!candidates.length) return null;
+      return candidates.reduce((best,cur)=>
+        rankings[pos][cur] < rankings[pos][best] ? cur : best, candidates[0]);
+    }
+
+    // Compute lineup fresh from current UI (priority order + overrides)
+    function computeLineupFromUI(){
+      const pitcher=document.getElementById("pitcher").value;
+      if(!pitcher) throw new Error("Please select a Pitcher to generate the lineup/visual.");
+      const lineup={"P":pitcher};
+      const assigned=new Set([pitcher]);
+
+      // EH/OUT selections (block them from field)
+      const ehSelections=[
+        document.getElementById("ehOut1").value,
+        document.getElementById("ehOut2").value,
+        document.getElementById("ehOut3").value
+      ].filter(v=>v && v!=="None");
+      for(const p of ehSelections){
+        if(assigned.has(p)) throw new Error(`Cannot assign ${p} as EH/OUT: already assigned.`);
+        assigned.add(p);
+      }
+
+      // Apply overrides by priority order (except P which is already set)
+      for(const pos of positions.slice(1)){
+        const sel=document.getElementById(`${pos}-override`);
+        if(sel && sel.value){
+          const pl=sel.value;
+          if(assigned.has(pl)) throw new Error(`Override conflict: ${pl} already assigned (EH/OUT or another position).`);
+          lineup[pos]=pl;
+          assigned.add(pl);
+        }
+      }
+
+      // Fill remaining positions best-available in priority order
+      for(const pos of positions.slice(1)){
+        if(!lineup[pos]){
+          const best=getBestPlayer(pos, assigned);
+          if(!best) throw new Error(`Not enough players available for ${pos}.`);
+          lineup[pos]=best;
+          assigned.add(best);
+        }
+      }
+
+      // EH/OUT list = exactly the 3 not on field
+      const fieldPlayers = new Set(Object.values(lineup));
+      const ehOutList = players.filter(p=>!fieldPlayers.has(p)).slice(0,3);
+
+      return { lineup, ehOutList };
+    }
+
+    // --- Canvas drawing ---
+    function drawBaseballDiamond(ctx, lineup, battingOrder, timestampCST, ehOutList){
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+
+      // Field background (light green gradient)
+      const g=ctx.createLinearGradient(0,0,0,400);
+      g.addColorStop(0,"#90EE90"); g.addColorStop(1,"#32CD32");
+      ctx.fillStyle=g; ctx.fillRect(0,0,400,400);
 
       // Infield dirt
-      ctx.fillStyle = "#deb887";
+      ctx.fillStyle="#d2b48c";
       ctx.beginPath();
-      ctx.moveTo(200,100); ctx.lineTo(300,200); ctx.lineTo(200,300); ctx.lineTo(100,200); ctx.closePath();
-      ctx.fill();
+      ctx.moveTo(200,100); ctx.lineTo(300,200); ctx.lineTo(200,300); ctx.lineTo(100,200);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle="#8B4513"; ctx.lineWidth=3; ctx.stroke();
 
-      // Pitcher’s mound
-      ctx.fillStyle="#ccc";
-      ctx.beginPath(); ctx.arc(200,200,25,0,Math.PI*2); ctx.fill();
+      // Mound
+      ctx.fillStyle="#D3D3D3"; ctx.beginPath(); ctx.arc(200,200,30,0,Math.PI*2); ctx.fill();
 
-      // Majors w/ timestamp
+      // Bases
+      ctx.fillStyle="#FFFFFF";
+      ["200,200","100,200","200,100","300,200"].forEach(c=>{
+        const [x,y]=c.split(",").map(Number);
+        ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill();
+      });
+
       ctx.fillStyle="#000080";
-      ctx.font="italic 22px 'Brush Script MT', cursive";
+
+      // Top-right: Majors (cursive) + timestamp under it (visual generation time)
       ctx.textAlign="right";
-      ctx.fillText("Majors", 380, 25);
+      ctx.font="italic 18px 'Brush Script MT', cursive";
+      ctx.fillText("Majors", 380, 20);
       ctx.font="12px Arial";
-      ctx.fillText(timestamp, 380, 45);
+      ctx.fillText(timestampCST, 380, 38);
 
-      // Batting order
-      ctx.font="15px Arial";
+      // Batting order (left)
       ctx.textAlign="left";
-      ctx.fillText("Batting Order:", 10, 20);
-      battingOrder.forEach((p,i)=>ctx.fillText(`${i+1}. ${p}`, 10, 40+i*18));
+      ctx.font="15px Arial";
+      ctx.fillText("Batting Order", 10, 12);
+      battingOrder.forEach((p,i)=>{ if(p) ctx.fillText(`${i+1}: ${p}`, 10, 32 + i*18); });
 
-      // Positions
-      const posCoords = {"P":[200,200],"C":[200,320],"1B":[280,220],"2B":[240,170],
-        "3B":[120,220],"SS":[160,160],"LF":[100,100],"CF":[200,60],"RF":[300,100]};
-      ctx.font="14px Arial";
+      // Defensive positions
+      const positionCoords={
+        "P":{x:200,y:200},
+        "C":{x:200,y:320},
+        "1B":{x:280,y:220},
+        "2B":{x:240,y:170},
+        "3B":{x:120,y:220},
+        "SS":{x:160,y:160},
+        "LF":{x:100,y:100},
+        "CF":{x:200,y:50},
+        "RF":{x:300,y:100}
+      };
       ctx.textAlign="center";
-      for (let pos in lineup) {
-        if(pos==="EH") continue;
-        const [x,y]=posCoords[pos];
-        ctx.fillText(pos, x, y-15);
-        ctx.fillText(lineup[pos], x, y+15);
+      ctx.font="14px Arial";
+      for(const [pos,pl] of Object.entries(lineup)){
+        if(!pl) continue;
+        const c=positionCoords[pos];
+        ctx.fillText(pos, c.x, c.y-20);
+        ctx.fillText(pl,  c.x, c.y+20);
       }
 
-      // EH/OUT
+      // EH / OUT (exactly the 3 not on field)
       ctx.textAlign="right";
       ctx.font="13px Arial";
-      ctx.fillText("EH / OUT:", 380, 330);
-      lineup.EH.forEach((p,i)=>ctx.fillText(p, 380, 350+i*18));
+      ctx.fillText("EH / OUT:", 380, 340);
+      ehOutList.forEach((p,i)=>ctx.fillText(p, 380, 360 + i*18));
     }
 
-    function generateBattingOrder() {
-      updateBattingDropdowns();
-      document.getElementById("lastUpdate").innerText = "Last Logic Update: " + getCurrentTimestamp();
-    }
+    // --- Buttons ---
+    function generateLineup(){
+      try{
+        const {lineup, ehOutList}=computeLineupFromUI();
 
-    function generateLineup() {
-      document.getElementById("lastUpdate").innerText = "Last Logic Update: " + getCurrentTimestamp();
-      generateVisual();
-    }
+        // Text output
+        const out=document.getElementById("output");
+        out.innerHTML="<h3>Lineup:</h3>";
+        for(const pos of positions){ out.innerHTML += `<p>${pos}: ${lineup[pos]}</p>`; }
+        out.innerHTML += `<h3>EH / OUT:</h3><p>${ehOutList.join(", ") || "None"}</p>`;
 
-    function generateVisual() {
-      const pitcher = document.getElementById("pitcher").value || "";
-      const lineup = {P:pitcher, C:"Jackie", SS:"Luke", "1B":"Hunter", "2B":"Becket",
-        "3B":"Tony","CF":"Dominic","LF":"Sproles","RF":"King", EH:[]};
-      ["ehOut1","ehOut2","ehOut3"].forEach(id=>{
-        const v=document.getElementById(id).value;
-        if(v) lineup.EH.push(v);
-      });
-      const battingOrder = [];
-      for(let i=1;i<=12;i++){
-        const val=document.getElementById("batting"+i).value;
-        if(val) battingOrder.push(val);
+        // Logic changed -> persist & show header timestamp
+        setLogicTimestampNow();
+      }catch(err){
+        document.getElementById("output").innerHTML = `<p class="error">${err.message}</p>`;
       }
-      const timestamp = getCurrentTimestamp();
-      drawField(lineup, battingOrder, timestamp);
     }
 
-    window.onload=()=>{initBattingTable();initDropdowns();}
+    function generateBattingOrder(){
+      try{
+        updateBattingOptions(); // enforce no-duplicates
+        const out=document.getElementById("output");
+        const order=[];
+        for(let i=1;i<=12;i++){ const v=document.getElementById("batting"+i).value; if(v) order.push(v); }
+        out.innerHTML += "<h3>Batting Order:</h3>" + (order.length ? order.map((p,i)=>`<p>${i+1}: ${p}</p>`).join("") : "<p>No players assigned to batting order.</p>");
+
+        // Logic changed -> persist & show header timestamp
+        setLogicTimestampNow();
+      }catch(err){
+        document.getElementById("output").innerHTML += `<p class="error">${err.message}</p>`;
+      }
+    }
+
+    function generateVisual(){
+      try{
+        const {lineup, ehOutList}=computeLineupFromUI(); // recompute live every time
+        // Batting order from selects
+        const battingOrder=[];
+        for(let i=1;i<=12;i++){ const v=document.getElementById("batting"+i).value; if(v) battingOrder.push(v); }
+        const canvas=document.getElementById("fieldCanvas");
+        const ctx=canvas.getContext("2d");
+        // Visual timestamp = when this visual is generated (do NOT change header)
+        const visualTs = centralFormatted();
+        drawBaseballDiamond(ctx, lineup, battingOrder, visualTs, ehOutList);
+        // Header timestamp intentionally unchanged here.
+      }catch(err){
+        document.getElementById("output").innerHTML += `<p class="error">${err.message}</p>`;
+      }
+    }
+
+    // --- Init ---
+    document.addEventListener("DOMContentLoaded", ()=>{
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("theme")||"light");
+      buildBattingTable();
+      populateOverrides();
+      populateEhOutSelections();
+      loadLogicTimestamp(); // show the last saved "Last Logic Update" on every load
+    });
   </script>
 </body>
 </html>
