@@ -80,15 +80,39 @@
       document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
     }
 
+    function getCurrentTimestamp() {
+      return new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
+    }
+
     function initBattingTable() {
       const table = document.getElementById("battingTable");
       table.innerHTML = players.map((_,i)=>
         `<tr><th>${i+1}</th>
-          <td><select id="batting${i+1}"><option value="">None</option>${
-            players.map(p=>`<option>${p}</option>`).join("")
-          }</select></td>
+          <td><select id="batting${i+1}" onchange="updateBattingDropdowns()">
+            <option value="">None</option>
+            ${players.map(p=>`<option>${p}</option>`).join("")}
+          </select></td>
         </tr>`
       ).join("");
+    }
+
+    function updateBattingDropdowns() {
+      const selected = [];
+      for(let i=1;i<=12;i++){
+        const val=document.getElementById("batting"+i).value;
+        if(val) selected.push(val);
+      }
+      for(let i=1;i<=12;i++){
+        const dropdown=document.getElementById("batting"+i);
+        const current=dropdown.value;
+        dropdown.querySelectorAll("option").forEach(opt=>{
+          if(opt.value && opt.value!==current && selected.includes(opt.value)){
+            opt.disabled=true;
+          } else {
+            opt.disabled=false;
+          }
+        });
+      }
     }
 
     function initDropdowns() {
@@ -127,14 +151,16 @@
       ctx.fillStyle="#ccc";
       ctx.beginPath(); ctx.arc(200,200,25,0,Math.PI*2); ctx.fill();
 
+      // Majors (cursive) with timestamp under it
       ctx.fillStyle="#000080";
-      ctx.font="bold 18px Arial";
-      ctx.fillText("Majors", 370, 20);
+      ctx.font="italic 22px 'Brush Script MT', cursive";
+      ctx.textAlign="right";
+      ctx.fillText("Majors", 380, 25);
       ctx.font="12px Arial";
-      ctx.fillText(timestamp, 370, 38); // no "Generated" here
+      ctx.fillText(timestamp, 380, 45);
 
       // Batting order
-      ctx.font="15px Arial"; // bumped
+      ctx.font="15px Arial";
       ctx.textAlign="left";
       ctx.fillText("Batting Order:", 10, 20);
       battingOrder.forEach((p,i)=>ctx.fillText(`${i+1}. ${p}`, 10, 40+i*18));
@@ -142,7 +168,7 @@
       // Positions
       const posCoords = {"P":[200,200],"C":[200,320],"1B":[280,220],"2B":[240,170],
         "3B":[120,220],"SS":[160,160],"LF":[100,100],"CF":[200,60],"RF":[300,100]};
-      ctx.font="14px Arial"; // bumped
+      ctx.font="14px Arial";
       ctx.textAlign="center";
       for (let pos in lineup) {
         if(pos==="EH") continue;
@@ -156,10 +182,6 @@
       ctx.font="13px Arial";
       ctx.fillText("EH / OUT:", 380, 330);
       lineup.EH.forEach((p,i)=>ctx.fillText(p, 380, 350+i*18));
-    }
-
-    function getCurrentTimestamp() {
-      return new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
     }
 
     function generateBattingOrder() {
