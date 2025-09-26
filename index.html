@@ -176,6 +176,14 @@
             };
 
             ctx.fillStyle = "#000080"; // Navy for text
+
+            // Draw Majors and timestamp at top-right
+            ctx.font = "bold italic 16px 'Brush Script MT', cursive";
+            ctx.textAlign = "right";
+            ctx.fillText("Majors", 380, 20);
+            ctx.font = "10px Arial";
+            ctx.fillText(`Generated: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
+
             // Draw batting order on the far left with header
             ctx.textAlign = "left";
             ctx.fillText("Batting Order", 10, 10); // Header above batting order
