@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 07:21 AM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 07:28 AM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -163,13 +163,6 @@
             ctx.beginPath();
             ctx.arc(300, 200, 8, 0, Math.PI * 2); // Third base
             ctx.fill();
-
-            // Arc (outfield grass edge)
-            ctx.beginPath();
-            ctx.arc(200, 200, 100, Math.PI, 0);
-            ctx.strokeStyle = "#8B4513";
-            ctx.lineWidth = 2;
-            ctx.stroke();
 
             const positionCoords = {
                 "P": { x: 200, y: 200 },
