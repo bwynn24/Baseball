@@ -199,7 +199,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 06:53 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 06:49 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -336,7 +336,6 @@
         <button class="export-button" onclick="exportLineupAndBattingOrder()">Export Lineup and Batting Order</button>
     </div>
 
-    <!-- Include html2pdf library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         // Player rankings data (updated rankings with 12-player roster)
@@ -664,7 +663,7 @@
             const battingSelects = document.querySelectorAll('.batting-order select');
 
             // Ensure the canvas has content before exporting
-            if (!fieldCanvas || fieldCanvas.toDataURL().includes("data:,") || outputDiv.innerHTML === "") {
+            if (!fieldCanvas || fieldCanvas.toDataURL() === 'data:,') {
                 alert("Please generate a lineup first to export.");
                 return;
             }
