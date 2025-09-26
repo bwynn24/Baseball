@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 2:35 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 04:46 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -118,15 +118,12 @@
         function updateBattingOptions(){const e=document.querySelectorAll('.batting-order select');const t={};const o=new Set();e.forEach(e=>{t[e.id]=e.value;e.value&&e.value!=="None"&&o.add(e.value);});e.forEach(e=>{e.innerHTML='<option value="">None</option>';players.forEach(n=>{if(!o.has(n)||t[e.id]===n){const t=document.createElement("option");t.value=n;t.text=n;e.appendChild(t);}});if(t[e.id]&&t[e.id]!=="None"){e.value=t[e.id];if(!e.value)e.value="";}});}
         function getBestPlayer(e,t,o){const n=o.filter(e=>!t.has(e));if(!n.length)return null;return n.reduce((t,o)=>rankings[e][o]<rankings[e][t]?o:t,n[0]);}
         function drawBaseballDiamond(ctx, lineup, ehOutSelections, battingOrder) {
-            ctx.font = "12px Arial";
+            ctx.font = "14px Arial"; // Base font increased for clarity
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // Realistic field background
-            const grassPattern = ctx.createLinearGradient(0, 0, 0, 400);
-            grassPattern.addColorStop(0, "#2ecc71"); // Bright green at top
-            grassPattern.addColorStop(1, "#27ae60"); // Darker green at bottom
-            ctx.fillStyle = grassPattern;
+            // White background for the visual
+            ctx.fillStyle = "#FFFFFF";
             ctx.fillRect(0, 0, 400, 400);
 
             // Infield dirt
@@ -177,19 +174,23 @@
 
             ctx.fillStyle = "#000080"; // Navy for text
 
-            // Draw Majors and timestamp at top-right
-            ctx.font = "bold italic 16px 'Brush Script MT', cursive";
+            // Draw M and timestamp at top-right
+            ctx.font = "bold italic 20px 'Brush Script MT', cursive"; // Larger cursive M, white fill
             ctx.textAlign = "right";
-            ctx.fillText("Majors", 380, 20);
-            ctx.font = "10px Arial";
-            ctx.fillText(`Generated: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
+            ctx.fillStyle = "#FFFFFF"; // White fill for M
+            ctx.fillText("M", 380, 20);
+            ctx.font = "12px Arial"; // Slightly larger timestamp font
+            ctx.fillStyle = "#000080"; // Navy for timestamp
+            ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
 
             // Draw batting order on the far left with header
+            ctx.fillStyle = "#000080"; // Reset to navy for text
             ctx.textAlign = "left";
+            ctx.font = "18px Arial"; // Increased from 16px for better phone visibility
             ctx.fillText("Batting Order", 10, 10); // Header above batting order
             battingOrder.forEach((player, index) => {
                 if (player && player !== "None") {
-                    ctx.fillText(`${index + 1}: ${player}`, 10, 25 + index * 15);
+                    ctx.fillText(`${index + 1}: ${player}`, 10, 35 + index * 20); // Increased spacing and font size
                 }
             });
             ctx.textAlign = "center";
@@ -202,19 +203,21 @@
                     ctx.fillStyle = "#FFFFFF";
                     ctx.fill();
                     ctx.fillStyle = "#000080"; // Navy for position and player names
-                    ctx.fillText(pos, coords.x, coords.y - 20);
-                    ctx.fillText(player, coords.x, coords.y + 20);
+                    ctx.font = "18px Arial"; // Increased from 16px for clarity
+                    ctx.fillText(pos, coords.x, coords.y - 30); // Adjusted y-position for larger text
+                    ctx.fillText(player, coords.x, coords.y + 30); // Adjusted y-position for larger text
                 }
             }
 
             // Display EH/OUT players not assigned to defensive positions at bottom right (limited to 3)
             ctx.fillStyle = "#000080"; // Navy for EH/OUT text
             ctx.textAlign = "right";
+            ctx.font = "18px Arial"; // Increased from 16px for clarity
             ctx.fillText("EH / OUT:", 380, 340); // Label above the list
             const assignedPlayers = new Set(Object.values(lineup).filter(p => p && p !== "EH/OUT"));
             const ehOutPlayers = players.filter(p => !assignedPlayers.has(p)).slice(0, 3);
             ehOutPlayers.forEach((player, index) => {
-                ctx.fillText(player, 380, 355 + (index * 15)); // Start at y=355 with 15px spacing
+                ctx.fillText(player, 380, 365 + (index * 20)); // Increased spacing and font size
             });
             ctx.textAlign = "center"; // Reset text alignment
         }
