@@ -199,7 +199,7 @@
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 06:41 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 06:53 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section">
@@ -663,7 +663,14 @@
             const fieldCanvas = document.getElementById('fieldCanvas');
             const battingSelects = document.querySelectorAll('.batting-order select');
 
+            // Ensure the canvas has content before exporting
+            if (!fieldCanvas || fieldCanvas.toDataURL().includes("data:,") || outputDiv.innerHTML === "") {
+                alert("Please generate a lineup first to export.");
+                return;
+            }
+
             // Create temporary export container
+            element.style.display = 'block'; // Make visible for rendering
             element.innerHTML = `
                 <h2>Lineup and Batting Order</h2>
                 <p>Generated on: ${new Date().toLocaleString()}</p>
@@ -695,14 +702,26 @@
             const exportCtx = exportCanvas.getContext('2d');
             exportCtx.drawImage(fieldCanvas, 0, 0);
 
-            // Generate PDF using html2pdf
+            // Force a reflow to ensure the canvas is rendered
+            element.offsetHeight; // Trigger reflow
+
+            // Generate PDF using html2pdf with adjusted settings
             html2pdf().from(element).set({
                 margin: [10, 10, 10, 10],
                 filename: 'lineup_and_batting_order.pdf',
-                html2canvas: { scale: 2 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: true // Enable logging for debugging
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).save().then(() => {
+            }).toPdf().get('pdf').then((pdf) => {
+                pdf.save(); // Save the PDF
+                element.style.display = 'none'; // Hide after export
                 element.innerHTML = ''; // Clear temporary container
+            }).catch((error) => {
+                console.error('PDF Export Error:', error);
+                alert('Failed to generate PDF. Check console for details.');
             });
         }
     </script>
