@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 05:43 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 05:51 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -177,18 +177,7 @@
 
             ctx.fillStyle = "#000080"; // Navy for text
 
-            // Draw M and timestamp at top-right
-            ctx.font = "bold italic 18px 'Brush Script MT', cursive"; // Slightly reduced from 20px, thicker weight
-            ctx.textAlign = "right";
-            ctx.fillStyle = "#000080"; // Changed to navy
-            ctx.lineWidth = 2; // Added to increase thickness
-            ctx.strokeStyle = "#000080"; // Navy stroke for thickness
-            ctx.strokeText("M", 380, 20); // Stroke for thicker appearance
-            ctx.fillText("M", 380, 20); // Fill over stroke
-            ctx.font = "10px Arial"; // Reduced from 12px
-            ctx.lineWidth = 1; // Reset line width
-            ctx.fillStyle = "#000080"; // Navy for timestamp
-            ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
+            // Removed M and timestamp at top-right
 
             // Draw batting order on the far left with header
             ctx.fillStyle = "#000080"; // Reset to navy for text
@@ -216,15 +205,15 @@
                 }
             }
 
-            // Display EH/OUT players not assigned to defensive positions at bottom right (limited to 3)
+            // Display EH/OUT players not assigned to defensive positions at bottom right (limited to 3), moved up slightly
             ctx.fillStyle = "#000080"; // Navy for EH/OUT text
             ctx.textAlign = "right";
             ctx.font = "16px Arial"; // Reduced from 18px for clarity
-            ctx.fillText("EH / OUT:", 380, 340); // Label above the list
+            ctx.fillText("EH / OUT:", 380, 320); // Moved up from 340
             const assignedPlayers = new Set(Object.values(lineup).filter(p => p && p !== "EH/OUT"));
             const ehOutPlayers = players.filter(p => !assignedPlayers.has(p)).slice(0, 3);
             ehOutPlayers.forEach((player, index) => {
-                ctx.fillText(player, 380, 360 + (index * 18)); // Adjusted spacing
+                ctx.fillText(player, 380, 340 + (index * 18)); // Moved up from 360, adjusted spacing
             });
             ctx.textAlign = "center"; // Reset text alignment
         }
