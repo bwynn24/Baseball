@@ -42,23 +42,39 @@
         .theme-toggle:hover { background-color: var(--button-hover-background); }
         .timestamp { text-align: center; font-size: 0.8em; color: var(--timestamp-color); transition: all 0.3s; margin-bottom: 5px; }
         .batting-order { margin-top: 15px; }
-        .batting-order .order-row { display: flex; align-items: center; margin-bottom: 5px; }
-        .batting-order .order-number { width: 30px; text-align: right; margin-right: 10px; font-weight: bold; }
-        .batting-order select { flex: 1; max-width: 200px; }
+        .batting-order table { width: 100%; border-collapse: collapse; }
+        .batting-order th, .batting-order td { padding: 5px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .batting-order th { width: 30px; }
+        .batting-order td select { width: 100%; max-width: 200px; }
         @media (max-width: 600px) {
             #fieldCanvas { width: 100%; height: auto; max-height: 300px; }
             select, button { max-width: 100%; }
-            .batting-order .order-row { flex-direction: column; align-items: flex-start; }
-            .batting-order .order-number { margin-bottom: 5px; }
-            .batting-order select { width: 100%; }
+            .batting-order th, .batting-order td { display: block; width: 100%; }
+            .batting-order td select { margin-top: 5px; }
         }
     </style>
 </head>
 <body>
     <h1>Defensive Lineup Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 10:16 PM CDT, Thursday, September 25, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:13 PM CDT, Thursday, September 25, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
+        <div class="section batting-order"><h3>Batting Order</h3><div>
+            <table>
+                <tr><th>1</th><td><select id="batting1" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>2</th><td><select id="batting2" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>3</th><td><select id="batting3" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>4</th><td><select id="batting4" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>5</th><td><select id="batting5" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>6</th><td><select id="batting6" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>7</th><td><select id="batting7" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>8</th><td><select id="batting8" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>9</th><td><select id="batting9" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>10</th><td><select id="batting10" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>11</th><td><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>12</th><td><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+            </table>
+        </div></div>
         <div class="section">
             <label for="pitcher">Select Pitcher:</label>
             <select id="pitcher">
@@ -87,21 +103,7 @@
         <button onclick="generateLineup()">Generate Lineup</button>
         <div id="output"></div>
         <canvas id="fieldCanvas" width="400" height="400"></canvas>
-        <div class="section batting-order"><h3>Batting Order</h3><div>
-            <div class="order-row"><span class="order-number">1</span><select id="batting1" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">2</span><select id="batting2" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">3</span><select id="batting3" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">4</span><select id="batting4" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">5</span><select id="batting5" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">6</span><select id="batting6" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">7</span><select id="batting7" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">8</span><select id="batting8" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">9</span><select id="batting9" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">10</span><select id="batting10" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">11</span><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div class="order-row"><span class="order-number">12</span><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-        </div></div>
-        <button onclick="generateBattingOrder()">Generate Batting Order</button>
+        <div class="section batting-order"><button onclick="generateBattingOrder()">Generate Batting Order</button></div>
     </div>
     <script>
         const players=["Hunter","Luke","Nathan","Evan","Sproles","Fluitt","Thomas","Tony","Jackie","King","Dominic","Becket"];
@@ -153,21 +155,18 @@
                 "RF": { x: 300, y: 100 }
             };
 
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = "#ffffff"; // Changed all text to white
             for (const [pos, player] of Object.entries(lineup)) {
                 if (pos !== "EH/OUT" && player) {
                     const coords = positionCoords[pos];
                     ctx.beginPath();
                     ctx.arc(coords.x, coords.y, 5, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.fillStyle = "#000000";
                     ctx.fillText(pos, coords.x, coords.y - 20);
                     ctx.fillText(player, coords.x, coords.y + 20);
                 }
             }
 
-            ctx.fillStyle = "#000000";
-            ctx.textAlign = "right";
             ctx.fillText("EH/OUT:", 380, 350);
             ehOutPlayers.slice(0, 4).forEach((player, index) => {
                 if (player) ctx.fillText(player, 380, 370 + index * 12);
