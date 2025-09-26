@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baseball Optimizer</title>
+  <title>Baseball Lineup Optimizer</title>
   <style>
     :root {
       --background-color: #f4f4f4;
@@ -16,20 +16,10 @@
       --error-color: red;
       --timestamp-color: #555;
     }
-    [data-theme="dark"] {
-      --background-color: #1a1a1a;
-      --container-background: #2c2c2c;
-      --text-color: #e0e0e0;
-      --border-color: #555;
-      --button-background: #388E3C;
-      --button-hover-background: #2E7D32;
-      --output-background: #333;
-      --error-color: #ff5555;
-      --timestamp-color: #d3d3d3;
-    }
-    body { font-family: Arial, sans-serif; margin: 10px; background: var(--background-color); color: var(--text-color); transition: 0.3s; }
-    h1 { text-align: center; font-size: 1.6em; margin-bottom: 5px; }
-    .timestamp { text-align: center; font-size: 0.9em; color: var(--timestamp-color); margin-bottom: 10px; }
+    body { font-family: Arial, sans-serif; margin: 10px; background: var(--background-color); color: var(--text-color); }
+    h1 { text-align: center; font-size: 1.6em; margin-bottom: 0; }
+    h2 { text-align: center; font-size: 1em; font-style: italic; margin-top: 2px; }
+    .timestamp { text-align: center; font-size: 0.9em; color: var(--timestamp-color); margin: 8px 0; }
     .container { max-width: 100%; margin: auto; padding: 12px; background: var(--container-background); border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
     label { font-weight: bold; margin-top: 6px; display: block; }
     select, button { padding: 8px; margin: 4px 0; width: 100%; max-width: 250px; font-size: 1em; border: 1px solid var(--border-color); border-radius: 4px; background: var(--container-background); color: var(--text-color); }
@@ -43,8 +33,9 @@
   </style>
 </head>
 <body>
-  <h1>Baseball Optimizer</h1>
-  <div class="timestamp" id="lastUpdate">Last Logic Update: Sep 26, 2025</div>
+  <h1>Baseball Lineup Optimizer</h1>
+  <h2>created by Blake Wynn</h2>
+  <div class="timestamp" id="lastUpdate">Last Logic Update: —</div>
   <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 
   <div class="container">
@@ -68,11 +59,13 @@
     </div>
 
     <button onclick="generateLineup()">Generate Lineup</button>
+    <button onclick="generateVisual()">Generate Visual</button>
     <canvas id="fieldCanvas" width="400" height="400"></canvas>
   </div>
 
   <script>
-    const players = ["Hunter","Luke","Nathan","Evan","Sproles","Fluitt","Thomas","Tony","Jackie","King","Dominic","Becket"];
+    const players = ["Becket","Dominic","Evan","Fluitt","Hunter","Jackie","King","Luke","Nathan","Sproles","Thomas","Tony"].sort();
+
     const positions = ["P","C","SS","1B","3B","2B","CF","LF","RF"];
 
     function toggleTheme() {
@@ -84,34 +77,32 @@
       return new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' });
     }
 
+    // Build batting order table
     function initBattingTable() {
       const table = document.getElementById("battingTable");
       table.innerHTML = players.map((_,i)=>
         `<tr><th>${i+1}</th>
-          <td><select id="batting${i+1}" onchange="updateBattingDropdowns()">
-            <option value="">None</option>
-            ${players.map(p=>`<option>${p}</option>`).join("")}
-          </select></td>
+          <td><select id="batting${i+1}" onchange="updateBattingDropdowns()"></select></td>
         </tr>`
       ).join("");
+      updateBattingDropdowns();
     }
 
+    // Update batting order dropdowns with filtering
     function updateBattingDropdowns() {
       const selected = [];
       for(let i=1;i<=12;i++){
-        const val=document.getElementById("batting"+i).value;
-        if(val) selected.push(val);
+        const sel=document.getElementById("batting"+i);
+        if(!sel) continue;
+        if(sel.value) selected.push(sel.value);
       }
       for(let i=1;i<=12;i++){
-        const dropdown=document.getElementById("batting"+i);
-        const current=dropdown.value;
-        dropdown.querySelectorAll("option").forEach(opt=>{
-          if(opt.value && opt.value!==current && selected.includes(opt.value)){
-            opt.disabled=true;
-          } else {
-            opt.disabled=false;
-          }
-        });
+        const sel=document.getElementById("batting"+i);
+        if(!sel) continue;
+        const current=sel.value;
+        sel.innerHTML = `<option value="">None</option>` +
+          players.filter(p=>!selected.includes(p) || p===current)
+                 .map(p=>`<option ${p===current?"selected":""}>${p}</option>`).join("");
       }
     }
 
@@ -134,7 +125,7 @@
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0,0,400,400);
 
-      // Lighter grass
+      // Grass
       const grad = ctx.createLinearGradient(0,0,0,400);
       grad.addColorStop(0,"#90EE90");
       grad.addColorStop(1,"#32CD32");
@@ -151,7 +142,7 @@
       ctx.fillStyle="#ccc";
       ctx.beginPath(); ctx.arc(200,200,25,0,Math.PI*2); ctx.fill();
 
-      // Majors (cursive) with timestamp under it
+      // Majors w/ timestamp
       ctx.fillStyle="#000080";
       ctx.font="italic 22px 'Brush Script MT', cursive";
       ctx.textAlign="right";
@@ -185,17 +176,17 @@
     }
 
     function generateBattingOrder() {
-      const battingOrder = [];
-      for(let i=1;i<=12;i++){
-        const val=document.getElementById("batting"+i).value;
-        if(val) battingOrder.push(val);
-      }
-      alert("Batting Order set.");
-      document.getElementById("lastUpdate").innerText = "Last Generated: " + getCurrentTimestamp();
+      updateBattingDropdowns();
+      document.getElementById("lastUpdate").innerText = "Last Logic Update: " + getCurrentTimestamp();
     }
 
     function generateLineup() {
-      const pitcher = document.getElementById("pitcher").value || players[0];
+      document.getElementById("lastUpdate").innerText = "Last Logic Update: " + getCurrentTimestamp();
+      generateVisual();
+    }
+
+    function generateVisual() {
+      const pitcher = document.getElementById("pitcher").value || "";
       const lineup = {P:pitcher, C:"Jackie", SS:"Luke", "1B":"Hunter", "2B":"Becket",
         "3B":"Tony","CF":"Dominic","LF":"Sproles","RF":"King", EH:[]};
       ["ehOut1","ehOut2","ehOut3"].forEach(id=>{
@@ -209,7 +200,6 @@
       }
       const timestamp = getCurrentTimestamp();
       drawField(lineup, battingOrder, timestamp);
-      document.getElementById("lastUpdate").innerText = "Last Generated: " + timestamp;
     }
 
     window.onload=()=>{initBattingTable();initDropdowns();}
