@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 2:35 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 05:43 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -129,60 +129,64 @@
             ctx.fillStyle = grassPattern;
             ctx.fillRect(0, 0, 400, 400);
 
-            // Infield dirt
+            // Infield dirt, shifted slightly right
             ctx.fillStyle = "#d2b48c"; // Sienna for dirt
             ctx.beginPath();
-            ctx.moveTo(200, 100);
-            ctx.lineTo(300, 200);
-            ctx.lineTo(200, 300);
-            ctx.lineTo(100, 200);
+            ctx.moveTo(220, 100); // Shifted from 200
+            ctx.lineTo(320, 200); // Shifted from 300
+            ctx.lineTo(220, 300); // Shifted from 200
+            ctx.lineTo(120, 200); // Shifted from 100
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = "#8B4513"; // Brown outline
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Pitcher's mound
+            // Pitcher's mound, shifted slightly right
             ctx.fillStyle = "#D3D3D3"; // Light gray for mound
             ctx.beginPath();
-            ctx.arc(200, 200, 30, 0, Math.PI * 2);
+            ctx.arc(220, 200, 30, 0, Math.PI * 2); // Shifted from 200
             ctx.fill();
 
-            // Bases
+            // Bases, shifted slightly right
             ctx.fillStyle = "#FFFFFF";
             ctx.beginPath();
-            ctx.arc(200, 200, 8, 0, Math.PI * 2); // Home plate
+            ctx.arc(220, 200, 8, 0, Math.PI * 2); // Home plate, shifted from 200
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(100, 200, 8, 0, Math.PI * 2); // First base
+            ctx.arc(120, 200, 8, 0, Math.PI * 2); // First base, shifted from 100
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(200, 100, 8, 0, Math.PI * 2); // Second base
+            ctx.arc(220, 100, 8, 0, Math.PI * 2); // Second base, shifted from 200
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(300, 200, 8, 0, Math.PI * 2); // Third base
+            ctx.arc(320, 200, 8, 0, Math.PI * 2); // Third base, shifted from 300
             ctx.fill();
 
             const positionCoords = {
-                "P": { x: 200, y: 200 },
-                "C": { x: 200, y: 320 },
-                "1B": { x: 280, y: 220 },
-                "2B": { x: 240, y: 170 },
-                "3B": { x: 120, y: 220 },
-                "SS": { x: 160, y: 160 },
-                "LF": { x: 100, y: 100 },
-                "CF": { x: 200, y: 50 },
-                "RF": { x: 300, y: 100 }
+                "P": { x: 220, y: 200 }, // Shifted from 200
+                "C": { x: 220, y: 320 }, // Shifted from 200
+                "1B": { x: 300, y: 220 }, // Shifted from 280
+                "2B": { x: 260, y: 170 }, // Shifted from 240
+                "3B": { x: 140, y: 220 }, // Shifted from 120
+                "SS": { x: 180, y: 160 }, // Shifted from 160
+                "LF": { x: 120, y: 100 }, // Shifted from 100
+                "CF": { x: 220, y: 50 },  // Shifted from 200
+                "RF": { x: 320, y: 100 }  // Shifted from 300
             };
 
             ctx.fillStyle = "#000080"; // Navy for text
 
             // Draw M and timestamp at top-right
-            ctx.font = "bold italic 18px 'Brush Script MT', cursive"; // Slightly reduced from 20px
+            ctx.font = "bold italic 18px 'Brush Script MT', cursive"; // Slightly reduced from 20px, thicker weight
             ctx.textAlign = "right";
-            ctx.fillStyle = "#FFFFFF"; // White fill for M
-            ctx.fillText("M", 380, 20);
+            ctx.fillStyle = "#000080"; // Changed to navy
+            ctx.lineWidth = 2; // Added to increase thickness
+            ctx.strokeStyle = "#000080"; // Navy stroke for thickness
+            ctx.strokeText("M", 380, 20); // Stroke for thicker appearance
+            ctx.fillText("M", 380, 20); // Fill over stroke
             ctx.font = "10px Arial"; // Reduced from 12px
+            ctx.lineWidth = 1; // Reset line width
             ctx.fillStyle = "#000080"; // Navy for timestamp
             ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
 
