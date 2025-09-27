@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:11 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:38 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -79,15 +79,27 @@
         </div></div>
         <div class="section">
             <label for="pitcher">Select Pitcher:</label>
-            <select id="pitcher" onchange="updateDefensiveOptions()">
+            <select id="pitcher" onchange="generateLineup()">
                 <option value="">None</option>
+                <option value="Hunter">Hunter</option>
+                <option value="Luke">Luke</option>
+                <option value="Nathan">Nathan</option>
+                <option value="Evan">Evan</option>
+                <option value="Sproles">Sproles</option>
+                <option value="Fluitt">Fluitt</option>
+                <option value="Thomas">Thomas</option>
+                <option value="Tony">Tony</option>
+                <option value="Jackie">Jackie</option>
+                <option value="King">King</option>
+                <option value="Dominic">Dominic</option>
+                <option value="Becket">Becket</option>
             </select>
         </div>
         <div class="section"><h3>Overrides (Optional)</h3><div id="overrides"></div></div>
         <div class="section"><h3>EH / OUT Selections (Optional)</h3><div id="ehOutSelections">
-            <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1" onchange="updateDefensiveOptions()"><option value="">None</option></select></div>
-            <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2" onchange="updateDefensiveOptions()"><option value="">None</option></select></div>
-            <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3" onchange="updateDefensiveOptions()"><option value="">None</option></select></div>
+            <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1" onchange="generateLineup()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
+            <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2" onchange="generateLineup()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
+            <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3" onchange="generateLineup()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
         </div></div>
         <button onclick="generateLineup()">Generate Lineup</button>
         <div id="output"></div>
@@ -95,7 +107,7 @@
         <div class="section"><button onclick="generateVisual()">Generate Visual</button></div>
     </div>
     <script>
-        const players = ["Becket", "Dominic", "Evan", "Fluitt", "Hunter", "Jackie", "King", "Luke", "Nathan", "Sproles", "Thomas", "Tony"];
+        const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
         const jerseyNumbers = {
             "Becket": 9,
             "Dominic": 8,
@@ -111,15 +123,15 @@
             "Tony": 0
         };
         const rankings = {
-            "P": {"Nathan":1,"Luke":2,"Hunter":3,"Dominic":4,"King":5,"Becket":6,"Jackie":7,"Tony":8,"Sproles":9,"Fluitt":10,"Evan":11,"Thomas":12},
-            "C": {"Jackie":1,"Nathan":2,"Dominic":3,"Tony":4,"Luke":5,"Fluitt":6,"Becket":7,"Thomas":8,"Sproles":9,"Evan":10,"King":11,"Hunter":12},
-            "SS": {"Luke":1,"Nathan":2,"Dominic":3,"Becket":4,"Jackie":5,"Tony":6,"Sproles":7,"Hunter":8,"Fluitt":9,"King":10,"Evan":11,"Thomas":12},
-            "2B": {"Luke":1,"Becket":2,"Evan":3,"Dominic":4,"Sproles":5,"Nathan":6,"Thomas":7,"Tony":8,"Jackie":9,"Hunter":10,"King":11,"Fluitt":12},
-            "3B": {"Jackie":1,"Nathan":2,"Hunter":3,"Tony":4,"Fluitt":5,"Dominic":6,"Becket":7,"King":8,"Sproles":9,"Luke":10,"Thomas":11,"Evan":12},
-            "1B": {"Hunter":1,"King":2,"Evan":3,"Tony":4,"Dominic":5,"Sproles":6,"Luke":7,"Jackie":8,"Fluitt":9,"Nathan":10,"Becket":11,"Thomas":12},
-            "CF": {"Dominic":1,"Jackie":2,"Sproles":3,"Becket":4,"King":5,"Fluitt":6,"Luke":7,"Nathan":8,"Tony":9,"Thomas":10,"Hunter":11,"Evan":12},
-            "LF": {"Sproles":1,"Jackie":2,"Dominic":3,"Tony":4,"King":5,"Fluitt":6,"Luke":7,"Becket":8,"Hunter":9,"Nathan":10,"Thomas":11,"Evan":12},
-            "RF": {"Sproles":1,"King":2,"Thomas":3,"Nathan":4,"Luke":5,"Dominic":6,"Jackie":7,"Fluitt":8,"Tony":9,"Becket":10,"Hunter":11,"Evan":12}
+            "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
+            "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
+            "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
+            "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Hunter": 10, "King": 11, "Fluitt": 12},
+            "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
+            "1B": {"Hunter": 1, "King": 2, "Evan": 3, "Tony": 4, "Dominic": 5, "Sproles": 6, "Luke": 7, "Jackie": 8, "Fluitt": 9, "Nathan": 10, "Becket": 11, "Thomas": 12},
+            "CF": {"Dominic": 1, "Jackie": 2, "Sproles": 3, "Becket": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Nathan": 8, "Tony": 9, "Thomas": 10, "Hunter": 11, "Evan": 12},
+            "LF": {"Sproles": 1, "Jackie": 2, "Dominic": 3, "Tony": 4, "King": 5, "Fluitt": 6, "Luke": 7, "Becket": 8, "Hunter": 9, "Nathan": 10, "Thomas": 11, "Evan": 12},
+            "RF": {"Sproles": 1, "King": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Jackie": 7, "Fluitt": 8, "Tony": 9, "Becket": 10, "Hunter": 11, "Evan": 12}
         };
         const positions = ["P", "C", "SS", "1B", "3B", "2B", "CF", "LF", "RF"];
 
@@ -136,9 +148,7 @@
             populateOverrides();
             populateEhOutSelections();
             initializeBattingOptions();
-            initializePitcher();
             updateBattingOptions(); // Initial population of batting options
-            updateDefensiveOptions(); // Initial population of defensive options
         });
 
         function populateOverrides() {
@@ -147,7 +157,7 @@
             overridesDiv.innerHTML = "";
             positions.forEach(pos => {
                 const div = document.createElement("div");
-                div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label><select id="${pos}-override" onchange="updateDefensiveOptions()"><option value="">None</option></select>`;
+                div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label><select id="${pos}-override" onchange="generateLineup()"><option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}</select>`;
                 overridesDiv.appendChild(div);
             });
         }
@@ -157,7 +167,7 @@
             if (!ehOutSelectionsDiv) return;
             const selects = ehOutSelectionsDiv.getElementsByTagName("select");
             for (let select of selects) {
-                select.innerHTML = `<option value="">None</option>`;
+                select.innerHTML = `<option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}`;
             }
         }
 
@@ -167,14 +177,6 @@
                 select.innerHTML = `<option value="">None</option>`;
             });
             updateBattingOptions();
-        }
-
-        function initializePitcher() {
-            const pitcherSelect = document.getElementById("pitcher");
-            if (pitcherSelect) {
-                pitcherSelect.innerHTML = `<option value="">None</option>`;
-            }
-            updateDefensiveOptions();
         }
 
         function updateBattingOptions() {
@@ -206,81 +208,6 @@
                 });
                 if (battingAssignments[select.id] && battingAssignments[select.id] !== "None") {
                     select.value = battingAssignments[select.id];
-                    if (!select.value) select.value = "";
-                }
-            });
-        }
-
-        function updateDefensiveOptions() {
-            const defensiveAssignments = {};
-            const assignedDefensivePlayers = new Set();
-
-            // Collect current defensive assignments (pitcher, overrides, EH/OUT)
-            const pitcher = document.getElementById("pitcher").value;
-            if (pitcher && pitcher !== "None") assignedDefensivePlayers.add(pitcher);
-
-            const positionOverrides = document.querySelectorAll('[id$="-override"]');
-            positionOverrides.forEach(select => {
-                const value = select.value;
-                if (value && value !== "None") assignedDefensivePlayers.add(value);
-                defensiveAssignments[select.id] = value;
-            });
-
-            const ehOutSelects = document.querySelectorAll('[id^="ehOut"]');
-            ehOutSelects.forEach(select => {
-                const value = select.value;
-                if (value && value !== "None") assignedDefensivePlayers.add(value);
-                defensiveAssignments[select.id] = value;
-            });
-
-            // Update pitcher dropdown
-            const pitcherSelect = document.getElementById("pitcher");
-            if (pitcherSelect) {
-                pitcherSelect.innerHTML = '<option value="">None</option>';
-                players.forEach(player => {
-                    if (!assignedDefensivePlayers.has(player) || defensiveAssignments[pitcherSelect.id] === player) {
-                        const option = document.createElement("option");
-                        option.value = player;
-                        option.text = player;
-                        pitcherSelect.appendChild(option);
-                    }
-                });
-                if (defensiveAssignments[pitcherSelect.id] && defensiveAssignments[pitcherSelect.id] !== "None") {
-                    pitcherSelect.value = defensiveAssignments[pitcherSelect.id];
-                    if (!pitcherSelect.value) pitcherSelect.value = "";
-                }
-            }
-
-            // Update position override dropdowns
-            positionOverrides.forEach(select => {
-                select.innerHTML = '<option value="">None</option>';
-                players.forEach(player => {
-                    if (!assignedDefensivePlayers.has(player) || defensiveAssignments[select.id] === player) {
-                        const option = document.createElement("option");
-                        option.value = player;
-                        option.text = player;
-                        select.appendChild(option);
-                    }
-                });
-                if (defensiveAssignments[select.id] && defensiveAssignments[select.id] !== "None") {
-                    select.value = defensiveAssignments[select.id];
-                    if (!select.value) select.value = "";
-                }
-            });
-
-            // Update EH/OUT dropdowns
-            ehOutSelects.forEach(select => {
-                select.innerHTML = '<option value="">None</option>';
-                players.forEach(player => {
-                    if (!assignedDefensivePlayers.has(player) || defensiveAssignments[select.id] === player) {
-                        const option = document.createElement("option");
-                        option.value = player;
-                        option.text = player;
-                        select.appendChild(option);
-                    }
-                });
-                if (defensiveAssignments[select.id] && defensiveAssignments[select.id] !== "None") {
-                    select.value = defensiveAssignments[select.id];
                     if (!select.value) select.value = "";
                 }
             });
@@ -389,73 +316,68 @@
             ctx.fillStyle = "#000080"; // Navy for EH/OUT text
             ctx.textAlign = "right";
             ctx.font = "16px Arial"; // Reduced from 18px for clarity
-            ctx.fillText("EH / OUT:", 380, 320); // Moved up to 320 from 340
-            const assignedPlayers = new Set(Object.values(lineup).filter(p => p && p !== "EH/OUT"));
-            const ehOutPlayers = players.filter(p => !assignedPlayers.has(p)).slice(0, 3);
+            ctx.fillText("EH / OUT:", 380, 320); // Moved up to 320 from 330
+            const ehOutPlayers = ehOutSelections.filter(player => player && player !== "None").slice(0, 3); // Get up to 3 selected players
             ehOutPlayers.forEach((player, index) => {
-                ctx.fillText(player, 380, 340 + (index * 18)); // Moved up to 340 from 360
+                ctx.fillText(player, 380, 340 + (index * 18)); // Moved up to 340 from 350
             });
             ctx.textAlign = "center"; // Reset text alignment
         }
 
         function generateLineup() {
-            const pitcher = document.getElementById("pitcher").value;
-            const output = document.getElementById("output");
-            output.innerHTML = "";
-            if (!pitcher) {
-                output.innerHTML = `<p class="error">Please select a Pitcher to generate the lineup.</p>`;
-                return;
-            }
+            try {
+                const pitcher = document.getElementById("pitcher").value;
+                const output = document.getElementById("output");
+                output.innerHTML = "";
+                if (!pitcher) throw new Error("Please select a Pitcher to generate the lineup.");
+                const lineup = { "P": pitcher };
+                const assignedPlayers = new Set([pitcher]);
 
-            const lineup = { "P": pitcher };
-            const assignedPlayers = new Set([pitcher]);
+                const overrides = document.querySelectorAll('[id$="-override"]');
+                overrides.forEach(select => {
+                    const player = select.value;
+                    if (player && player !== "None") {
+                        if (assignedPlayers.has(player)) throw new Error(`Cannot assign ${player} to ${select.id.replace("-override", "")}: already assigned.`);
+                        lineup[select.id.replace("-override", "")] = player;
+                        assignedPlayers.add(player);
+                    }
+                });
 
-            // Handle position overrides
-            const positionOverrides = document.querySelectorAll('[id$="-override"]');
-            positionOverrides.forEach(select => {
-                const player = select.value;
-                if (player && player !== "None" && !assignedPlayers.has(player)) {
-                    const position = select.id.replace("-override", "");
-                    lineup[position] = player;
+                const ehOutSelections = [
+                    document.getElementById("ehOut1").value,
+                    document.getElementById("ehOut2").value,
+                    document.getElementById("ehOut3").value
+                ].filter(player => player && player !== "None");
+                ehOutSelections.forEach(player => {
+                    if (assignedPlayers.has(player)) throw new Error(`Cannot assign ${player} as EH/OUT: already assigned.`);
                     assignedPlayers.add(player);
-                }
-            });
+                });
 
-            // Handle EH/OUT selections
-            const ehOutSelects = document.querySelectorAll('[id^="ehOut"]');
-            ehOutSelects.forEach(select => {
-                const player = select.value;
-                if (player && player !== "None" && !assignedPlayers.has(player)) {
-                    assignedPlayers.add(player); // Add to assigned to exclude from lineup
-                }
-            });
+                let availablePlayers = players.filter(p => !assignedPlayers.has(p));
+                const remainingPositions = positions.filter(pos => pos !== "P" && !lineup.hasOwnProperty(pos));
+                remainingPositions.forEach(pos => {
+                    const bestPlayer = getBestPlayer(pos, assignedPlayers, availablePlayers);
+                    if (bestPlayer) {
+                        lineup[pos] = bestPlayer;
+                        assignedPlayers.add(bestPlayer);
+                        availablePlayers = availablePlayers.filter(p => p !== bestPlayer);
+                    } else {
+                        throw new Error(`Not enough players available for ${pos}.`);
+                    }
+                });
 
-            // Fill remaining positions with best players
-            let availablePlayers = players.filter(p => !assignedPlayers.has(p));
-            const remainingPositions = positions.filter(pos => pos !== "P" && !lineup.hasOwnProperty(pos));
-            remainingPositions.forEach(pos => {
-                const bestPlayer = getBestPlayer(pos, assignedPlayers, availablePlayers);
-                if (bestPlayer) {
-                    lineup[pos] = bestPlayer;
-                    assignedPlayers.add(bestPlayer);
-                    availablePlayers = availablePlayers.filter(p => p !== bestPlayer);
+                output.innerHTML = "<h3>Lineup:</h3>";
+                for (const [pos, player] of Object.entries(lineup)) {
+                    output.innerHTML += `<p>${pos}: ${player}</p>`;
+                }
+                if (ehOutSelections.length > 0) {
+                    output.innerHTML += "<h3>EH / OUT:</h3><p>" + ehOutSelections.join(", ") + "</p>";
                 } else {
-                    output.innerHTML += `<p class="error">Not enough players available for ${pos}.</p>`;
+                    output.innerHTML += "<h3>EH / OUT:</h3><p>None</p>";
                 }
-            });
-
-            // Output the lineup
-            output.innerHTML = "<h3>Lineup:</h3>";
-            for (const [pos, player] of Object.entries(lineup)) {
-                output.innerHTML += `<p>${pos}: ${player}</p>`;
-            }
-
-            // List EH/OUT players (including those selected in dropdowns and any remaining)
-            const ehOutPlayers = players.filter(p => assignedPlayers.has(p) && !Object.values(lineup).includes(p));
-            if (ehOutPlayers.length > 0) {
-                output.innerHTML += `<h3>EH / OUT:</h3><p>${ehOutPlayers.join(", ")}</p>`;
-            } else {
-                output.innerHTML += "<h3>EH / OUT:</h3><p>None</p>";
+            } catch (e) {
+                const output = document.getElementById("output");
+                if (output) output.innerHTML = `<p class="error">Error generating lineup: ${e.message}</p>`;
             }
         }
 
@@ -483,7 +405,11 @@
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, 400, 400);
-            const ehOutSelections = Array.from(document.querySelectorAll('[id^="ehOut"]')).map(select => select.value).filter(val => val !== "None");
+            const ehOutSelections = [
+                document.getElementById("ehOut1").value,
+                document.getElementById("ehOut2").value,
+                document.getElementById("ehOut3").value
+            ].filter(player => player && player !== "None");
             const battingOrder = Array.from(document.querySelectorAll('.batting-order select')).map(select => select.value).filter(val => val !== "None");
             drawBaseballDiamond(ctx, lineup, ehOutSelections, battingOrder);
         }
