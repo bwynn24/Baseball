@@ -57,23 +57,23 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 10:27 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 05:43 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
             <table>
-                <tr><th>1</th><td><select id="batting1" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>2</th><td><select id="batting2" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>3</th><td><select id="batting3" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>4</th><td><select id="batting4" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>5</th><td><select id="batting5" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>6</th><td><select id="batting6" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>7</th><td><select id="batting7" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>8</th><td><select id="batting8" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>9</th><td><select id="batting9" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>10</th><td><select id="batting10" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>11</th><td><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>12</th><td><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>1</th><td><select id="batting1" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>2</th><td><select id="batting2" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>3</th><td><select id="batting3" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>4</th><td><select id="batting4" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>5</th><td><select id="batting5" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>6</th><td><select id="batting6" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>7</th><td><select id="batting7" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>8</th><td><select id="batting8" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>9</th><td><select id="batting9" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>10</th><td><select id="batting10" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>11</th><td><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
+                <tr><th>12</th><td><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></td></tr>
             </table>
             <button onclick="generateBattingOrder()">Generate Batting Order</button>
         </div></div>
@@ -110,103 +110,78 @@
         const players=["Hunter","Luke","Nathan","Evan","Sproles","Fluitt","Thomas","Tony","Jackie","King","Dominic","Becket"];
         const rankings={"P":{"Nathan":1,"Luke":2,"Hunter":3,"Dominic":4,"King":5,"Becket":6,"Jackie":7,"Tony":8,"Sproles":9,"Fluitt":10,"Evan":11,"Thomas":12},"C":{"Jackie":1,"Nathan":2,"Dominic":3,"Tony":4,"Luke":5,"Fluitt":6,"Becket":7,"Thomas":8,"Sproles":9,"Evan":10,"King":11,"Hunter":12},"SS":{"Luke":1,"Nathan":2,"Dominic":3,"Becket":4,"Jackie":5,"Tony":6,"Sproles":7,"Hunter":8,"Fluitt":9,"King":10,"Evan":11,"Thomas":12},"2B":{"Luke":1,"Becket":2,"Evan":3,"Dominic":4,"Sproles":5,"Nathan":6,"Thomas":7,"Tony":8,"Jackie":9,"Hunter":10,"King":11,"Fluitt":12},"3B":{"Jackie":1,"Nathan":2,"Hunter":3,"Tony":4,"Fluitt":5,"Dominic":6,"Becket":7,"King":8,"Sproles":9,"Luke":10,"Thomas":11,"Evan":12},"1B":{"Hunter":1,"King":2,"Evan":3,"Tony":4,"Dominic":5,"Sproles":6,"Luke":7,"Jackie":8,"Fluitt":9,"Nathan":10,"Becket":11,"Thomas":12},"CF":{"Dominic":1,"Jackie":2,"Sproles":3,"Becket":4,"King":5,"Fluitt":6,"Luke":7,"Nathan":8,"Tony":9,"Thomas":10,"Hunter":11,"Evan":12},"LF":{"Sproles":1,"Jackie":2,"Dominic":3,"Tony":4,"King":5,"Fluitt":6,"Luke":7,"Becket":8,"Hunter":9,"Nathan":10,"Thomas":11,"Evan":12},"RF":{"Sproles":1,"King":2,"Thomas":3,"Nathan":4,"Luke":5,"Dominic":6,"Jackie":7,"Fluitt":8,"Tony":9,"Becket":10,"Hunter":11,"Evan":12}};
         const positions=["P","C","SS","1B","3B","2B","CF","LF","RF"];
-        // Jersey numbers mapped to players
-        const playerNumbers = {
-            "Becket": 9,
-            "Dominic": 8,
-            "Evan": 5,
-            "Fluitt": 23,
-            "Hunter": 24,
-            "Jackie": 16,
-            "King": 7,
-            "Luke": 10,
-            "Nathan": 17,
-            "Sproles": 3,
-            "Thomas": 1,
-            "Tony": 0
-        };
         function toggleTheme(){const t=document.documentElement.getAttribute("data-theme");const e=t==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",e);localStorage.setItem("theme",e);}
         document.addEventListener("DOMContentLoaded",()=>{const t=localStorage.getItem("theme")||"light";document.documentElement.setAttribute("data-theme",t);populateOverrides();populateEhOutSelections();initializeBattingOptions();});
-        function populateOverrides(){const e=document.getElementById("overrides");if(!e)return;e.innerHTML="";positions.forEach(t=>{const o=document.createElement("div");o.innerHTML=`<label for="${t}-override">${t} Override (optional):</label><select id="${t}-override" onchange="updateOverrideOptions()"><option value="">None</option>${Object.keys(playerNumbers).sort().map(p=>`<option value="${p}">${p}</option>`).join("")}</select>`;e.appendChild(o);});updateOverrideOptions();}
-        function populateEhOutSelections(){const e=document.getElementById("ehOutSelections");if(!e)return;const t=e.getElementsByTagName("select");for(let e of t)e.innerHTML=`<option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}`;}
-        function initializeBattingOptions(){const e=document.querySelectorAll('.batting-order select');e.forEach(t=>{t.innerHTML=`<option value="">None</option>${Object.keys(playerNumbers).sort().map(p=>`<option value="${p}">${playerNumbers[p]} ${p}</option>`).join("")}`;});updateBattingOptions();}
-        function updateBattingOptions(){const e=document.querySelectorAll('.batting-order select');const t={};const o=new Set();e.forEach(e=>{t[e.id]=e.value;e.value&&e.value!=="None"&&o.add(e.value);});e.forEach(e=>{e.innerHTML='<option value="">None</option>';Object.keys(playerNumbers).sort().forEach(n=>{if(!o.has(n)||t[e.id]===n){const t=document.createElement("option");t.value=n;t.text=`${playerNumbers[n]} ${n}`;e.appendChild(t);}});if(t[e.id]&&t[e.id]!=="None"){e.value=t[e.id];if(!e.value)e.value="";}});}
-        function updateOverrideOptions(){const e=document.querySelectorAll('[id$="-override"]');const t={};const o=new Set();e.forEach(e=>{t[e.id]=e.value;e.value&&e.value!=="None"&&o.add(e.value);});e.forEach(e=>{e.innerHTML='<option value="">None</option>';Object.keys(playerNumbers).sort().forEach(n=>{if(!o.has(n)||t[e.id]===n){const t=document.createElement("option");t.value=n;t.text=n;e.appendChild(t);}});if(t[e.id]&&t[e.id]!=="None"){e.value=t[e.id];if(!e.value)e.value="";}});}
+        function populateOverrides(){const e=document.getElementById("overrides");if(!e)return;e.innerHTML="";positions.forEach(t=>{const o=document.createElement("div");o.innerHTML=`<label for="${t}-override">${t} Override (optional):</label><select id="${t}-override"><option value="">None</option>${players.map(e=>`<option value="${e}">${e}</option>`).join("")}</select>`;e.appendChild(o);});}
+        function populateEhOutSelections(){const e=document.getElementById("ehOutSelections");if(!e)return;const t=e.getElementsByTagName("select");for(let e of t)e.innerHTML=`<option value="">None</option>${players.map(e=>`<option value="${e}">${e}</option>`).join("")}`;}
+        function initializeBattingOptions(){const e=document.querySelectorAll('.batting-order select');e.forEach(t=>{t.innerHTML=`<option value="">None</option>${players.map(e=>`<option value="${e}">${e}</option>`).join("")}`;});updateBattingOptions();}
+        function updateBattingOptions(){const e=document.querySelectorAll('.batting-order select');const t={};const o=new Set();e.forEach(e=>{t[e.id]=e.value;e.value&&e.value!=="None"&&o.add(e.value);});e.forEach(e=>{e.innerHTML='<option value="">None</option>';players.forEach(n=>{if(!o.has(n)||t[e.id]===n){const t=document.createElement("option");t.value=n;t.text=n;e.appendChild(t);}});if(t[e.id]&&t[e.id]!=="None"){e.value=t[e.id];if(!e.value)e.value="";}});}
         function getBestPlayer(e,t,o){const n=o.filter(e=>!t.has(e));if(!n.length)return null;return n.reduce((t,o)=>rankings[e][o]<rankings[e][t]?o:t,n[0]);}
         function drawBaseballDiamond(ctx, lineup, ehOutSelections, battingOrder) {
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // Lighter green background for the visual
+            // Realistic field background
             const grassPattern = ctx.createLinearGradient(0, 0, 0, 400);
-            grassPattern.addColorStop(0, "#90ee90"); // Light green at top
-            grassPattern.addColorStop(1, "#98fb98"); // Lighter green at bottom
+            grassPattern.addColorStop(0, "#2ecc71"); // Bright green at top
+            grassPattern.addColorStop(1, "#27ae60"); // Darker green at bottom
             ctx.fillStyle = grassPattern;
             ctx.fillRect(0, 0, 400, 400);
 
-            // Infield dirt, shifted slightly right
+            // Infield dirt
             ctx.fillStyle = "#d2b48c"; // Sienna for dirt
             ctx.beginPath();
-            ctx.moveTo(220, 100); // Shifted from 200
-            ctx.lineTo(320, 200); // Shifted from 300
-            ctx.lineTo(220, 300); // Shifted from 200
-            ctx.lineTo(120, 200); // Shifted from 100
+            ctx.moveTo(200, 100);
+            ctx.lineTo(300, 200);
+            ctx.lineTo(200, 300);
+            ctx.lineTo(100, 200);
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = "#8B4513"; // Brown outline
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Pitcher's mound, shifted slightly right
+            // Pitcher's mound
             ctx.fillStyle = "#D3D3D3"; // Light gray for mound
             ctx.beginPath();
-            ctx.arc(220, 200, 30, 0, Math.PI * 2); // Shifted from 200
+            ctx.arc(200, 200, 30, 0, Math.PI * 2);
             ctx.fill();
 
-            // Bases, shifted slightly right
+            // Bases
             ctx.fillStyle = "#FFFFFF";
             ctx.beginPath();
-            ctx.arc(220, 200, 8, 0, Math.PI * 2); // Home plate, shifted from 200
+            ctx.arc(200, 200, 8, 0, Math.PI * 2); // Home plate
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(120, 200, 8, 0, Math.PI * 2); // First base, shifted from 100
+            ctx.arc(100, 200, 8, 0, Math.PI * 2); // First base
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(220, 100, 8, 0, Math.PI * 2); // Second base, shifted from 200
+            ctx.arc(200, 100, 8, 0, Math.PI * 2); // Second base
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(320, 200, 8, 0, Math.PI * 2); // Third base, shifted from 300
+            ctx.arc(300, 200, 8, 0, Math.PI * 2); // Third base
             ctx.fill();
 
             const positionCoords = {
-                "P": { x: 220, y: 200 }, // Shifted from 200
-                "C": { x: 220, y: 320 }, // Shifted from 200
-                "1B": { x: 300, y: 220 }, // Shifted from 280
-                "2B": { x: 260, y: 170 }, // Shifted from 240
-                "3B": { x: 140, y: 220 }, // Shifted from 120
-                "SS": { x: 180, y: 160 }, // Shifted from 160
-                "LF": { x: 120, y: 100 }, // Shifted from 100
-                "CF": { x: 220, y: 50 },  // Shifted from 200
-                "RF": { x: 320, y: 100 }  // Shifted from 300
+                "P": { x: 200, y: 200 },
+                "C": { x: 200, y: 320 },
+                "1B": { x: 280, y: 220 },
+                "2B": { x: 240, y: 170 },
+                "3B": { x: 120, y: 220 },
+                "SS": { x: 160, y: 160 },
+                "LF": { x: 100, y: 100 },
+                "CF": { x: 200, y: 50 },
+                "RF": { x: 300, y: 100 }
             };
 
             ctx.fillStyle = "#000080"; // Navy for text
-
-            // Draw timestamp at top-right (removed M)
-            ctx.font = "10px Arial"; // Reduced from 12px
-            ctx.textAlign = "right";
-            ctx.fillStyle = "#000080"; // Navy for timestamp
-            ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
-
             // Draw batting order on the far left with header
-            ctx.fillStyle = "#000080"; // Reset to navy for text
             ctx.textAlign = "left";
-            ctx.font = "16px Arial"; // Reduced from 18px for better clarity
             ctx.fillText("Batting Order", 10, 10); // Header above batting order
             battingOrder.forEach((player, index) => {
                 if (player && player !== "None") {
-                    ctx.fillText(`${index + 1}: ${playerNumbers[player]} ${player}`, 10, 30 + index * 18); // Adjusted spacing with number
+                    ctx.fillText(`${index + 1}: ${player}`, 10, 25 + index * 15);
                 }
             });
             ctx.textAlign = "center";
@@ -219,82 +194,24 @@
                     ctx.fillStyle = "#FFFFFF";
                     ctx.fill();
                     ctx.fillStyle = "#000080"; // Navy for position and player names
-                    ctx.font = "16px Arial"; // Reduced from 18px for clarity
-                    ctx.fillText(pos, coords.x, coords.y - 25); // Adjusted y-position for larger text
-                    ctx.fillText(player, coords.x, coords.y + 25); // Adjusted y-position for larger text
+                    ctx.fillText(pos, coords.x, coords.y - 20);
+                    ctx.fillText(player, coords.x, coords.y + 20);
                 }
             }
 
-            // Display EH/OUT players not assigned to defensive positions at bottom right (limited to 3)
+            // Display EH/OUT selections at bottom right
             ctx.fillStyle = "#000080"; // Navy for EH/OUT text
             ctx.textAlign = "right";
-            ctx.font = "16px Arial"; // Reduced from 18px for clarity
-            ctx.fillText("EH / OUT:", 380, 320); // Moved up from 340
-            const assignedPlayers = new Set(Object.values(lineup).filter(p => p && p !== "EH/OUT"));
-            const ehOutPlayers = players.filter(p => !assignedPlayers.has(p)).slice(0, 3);
+            ctx.fillText("EH / OUT:", 380, 330); // Moved up slightly
+            const ehOutPlayers = ehOutSelections.filter(player => player && player !== "None").slice(0, 3); // Get up to 3 selected players
             ehOutPlayers.forEach((player, index) => {
-                ctx.fillText(player, 380, 340 + (index * 18)); // Moved up from 360
+                ctx.fillText(player, 380, 350 + (index * 20)); // Position at bottom right (x=380, y starts at 350 with 20px spacing)
             });
             ctx.textAlign = "center"; // Reset text alignment
         }
-        function generateLineup(){try{const e=document.getElementById("pitcher").value;const t=document.getElementById("output");t.innerHTML="";if(!e)throw new Error("Please select a Pitcher to generate the lineup.");const o={"P":e};const n=new Set([e]);const r=[document.getElementById("ehOut1").value,document.getElementById("ehOut2").value,document.getElementById("ehOut3").value].filter(p=>p&&p!=="None");for(let e of r){if(e===e)throw new Error(`Cannot assign ${e} as EH/OUT: they are already selected as Pitcher.`);if(n.has(e))throw new Error(`Cannot assign ${e} as EH/OUT: they are already assigned.`);n.add(e);}let l=players.filter(e=>!n.has(e));const i={};positions.slice(1).forEach(e=>{const t=document.getElementById(`${e}-override`);if(t){const o=t.value;if(o){if(!l.includes(o))throw new Error(`Cannot override ${e} with ${o}: ${o} is already assigned to EH/OUT or Pitcher.`);i[e]=o;n.add(o);}}});for(const[e,t]of Object.entries(i))o[e]=t;l=players.filter(e=>!n.has(e));const s=positions.filter(e=>!o.hasOwnProperty(e));for(const e of s){const t=getBestPlayer(e,n,l);if(!t)throw new Error(`Not enough players available for ${e}.`);o[e]=t;n.add(t);}const c=players.filter(e=>!n.has(e));const d=[...r,...c];t.innerHTML="<h3>Lineup:</h3>";for(const[e,n]of Object.entries(o))t.innerHTML+=`<p>${e}: ${n}</p>`;if(d.length>0){t.innerHTML+="<h3>EH / OUT:</h3><p>"+d.join(", ")+"</p>";}else{t.innerHTML+="<h3>EH / OUT:</h3><p>None</p>";}}catch(e){const o=document.getElementById("output");if(o)o.innerHTML=`<p class="error">Error generating lineup: ${e.message}</p>`;}}
-        function generateBattingOrder(){try{const e=document.querySelectorAll('.batting-order select');const t=document.getElementById("output");const o=new Set();t.innerHTML+="<h3>Batting Order:</h3>";let n="";for(let t=0;t<e.length;t++){const r=e[t].value;if(r&&r!=="None"){if(o.has(r))throw new Error(`Duplicate player ${r} in batting order.`);o.add(r);n+=`<p>${t+1}: ${playerNumbers[r]} ${r}</p>`;}}n?t.innerHTML+=n:t.innerHTML+="<p>No players assigned to batting order.</p>";}catch(e){const t=document.getElementById("output");if(t)t.innerHTML+=`<p class="error">Error generating batting order: ${e.message}</p>`;}}
-        function generateVisual() {
-            try {
-                const lineup = {};
-                const pitcher = document.getElementById("pitcher").value;
-                if (!pitcher) throw new Error("Please select a Pitcher to generate the visual.");
-                lineup["P"] = pitcher;
-                const assignedPlayers = new Set([pitcher]);
-                const ehOutSelections = [
-                    document.getElementById("ehOut1").value,
-                    document.getElementById("ehOut2").value,
-                    document.getElementById("ehOut3").value
-                ].filter(player => player && player !== "None"); // Only include selected EH/OUT players (limited to 3)
-                for (let player of ehOutSelections) {
-                    if (player === pitcher) throw new Error(`Cannot assign ${player} as EH/OUT: they are already selected as Pitcher.`);
-                    if (assignedPlayers.has(player)) throw new Error(`Cannot assign ${player} as EH/OUT: they are already assigned.`);
-                    assignedPlayers.add(player);
-                }
-                let availablePlayers = players.filter(p => !assignedPlayers.has(p));
-                const overrides = {};
-                positions.slice(1).forEach(pos => {
-                    const overrideSelect = document.getElementById(`${pos}-override`);
-                    if (overrideSelect) {
-                        const player = overrideSelect.value;
-                        if (player) {
-                            if (!availablePlayers.includes(player)) throw new Error(`Cannot override ${pos} with ${player}: ${player} is already assigned to EH/OUT or Pitcher.`);
-                            overrides[pos] = player;
-                            assignedPlayers.add(player);
-                        }
-                    }
-                });
-                for (const [pos, player] of Object.entries(overrides)) lineup[pos] = player;
-                availablePlayers = players.filter(p => !assignedPlayers.has(p));
-                const remainingPositions = positions.filter(pos => !lineup.hasOwnProperty(pos));
-                for (const pos of remainingPositions) {
-                    const bestPlayer = getBestPlayer(pos, assignedPlayers, availablePlayers);
-                    if (!bestPlayer) throw new Error(`Not enough players available for ${pos}.`);
-                    lineup[pos] = bestPlayer;
-                    assignedPlayers.add(bestPlayer);
-                }
-
-                const battingOrder = [];
-                const battingSelects = document.querySelectorAll('.batting-order select');
-                for (let i = 0; i < battingSelects.length; i++) {
-                    const player = battingSelects[i].value;
-                    if (player && player !== "None") battingOrder.push(player);
-                }
-
-                const canvas = document.getElementById("fieldCanvas");
-                const ctx = canvas.getContext("2d");
-                drawBaseballDiamond(ctx, lineup, ehOutSelections, battingOrder);
-            } catch (e) {
-                const output = document.getElementById("output");
-                if (output) output.innerHTML += `<p class="error">Error generating visual: ${e.message}</p>`;
-            }
-        }
-        document.addEventListener("DOMContentLoaded",()=>{console.log("DOMContentLoaded event fired");populateOverrides();const e=document.getElementById("ehOutSelections");if(e){const t=e.getElementsByTagName("select");for(let e of t)e.innerHTML=`<option value="">None</option>${players.map(e=>`<option value="${e}">${e}</option>`).join("")}`;}});
+        function generateLineup(){const e=document.getElementById("pitcher").value;const t=document.getElementById("output");t.innerHTML="";if(!e)return t.innerHTML=`<p class="error">Please select a Pitcher to generate the lineup.</p>`;const o={"P":e};const n=new Set([e]);const r=document.querySelectorAll('[id$="-override"]');r.forEach(t=>{const r=t.value;if(r&&r!=="None"){if(n.has(r))return t.innerHTML=`<p class="error">Player ${r} is already assigned.</p>`;o[t.id.replace("-override","")]=r;n.add(r);}});const a=document.querySelectorAll('[id^="ehOut"]');a.forEach(t=>{const r=t.value;if(r&&r!=="None"){if(n.has(r))return t.innerHTML=`<p class="error">Player ${r} is already assigned.</p>`;n.add(r);}});let l=players.filter(e=>!n.has(e));const s=positions.filter(e=>!o.hasOwnProperty(e));s.forEach(e=>{const t=getBestPlayer(e,n,l);if(t){o[e]=t;n.add(t);}else t.innerHTML+=`<p class="error">Not enough players for ${e}.</p>`;});t.innerHTML="<h3>Lineup:</h3>";for(const[e,r] of Object.entries(o))t.innerHTML+=`<p>${e}: ${r}</p>`;const c=players.filter(e=>!n.has(e));if(c.length>0){t.innerHTML+="<h3>EH / OUT:</h3><p>"+c.join(", ")+"</p>";}}
+        function generateBattingOrder(){const e=document.querySelectorAll('.batting-order select');const t=document.getElementById("output");t.innerHTML+="<h3>Batting Order:</h3>";let n="";e.forEach((e,t)=>{const r=e.value;if(r&&r!=="None")n+=`<p>${t+1}: ${r}</p>`;});n?t.innerHTML+=n:t.innerHTML+="<p>No players assigned to batting order.</p>";}
+        function generateVisual(){const e=generateLineup();const t=document.getElementById("fieldCanvas").getContext("2d");t.clearRect(0,0,400,400);const o=document.getElementById("ehOutSelections").getElementsByTagName("select");const n=Array.from(o).map(e=>e.value).filter(e=>e!=="");const a=document.querySelectorAll('.batting-order select');const l=Array.from(a).map(e=>e.value).filter(e=>e!=="");drawBaseballDiamond(t,e,n,l);}
     </script>
 </body>
 </html>
