@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 12:23 AM CDT, Saturday, September 27, 2025</div>
+    <div class="timestamp">Last Logic Update: 12:37 AM CDT, Saturday, September 27, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -125,7 +125,7 @@
         const rankings = {
             "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
             "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
-            "SS": {"Nathan": 1, "Luke": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
+            "SS": {"Luke": 1, "Nathan": 2, "Dominic": 3, "Becket": 4, "Jackie": 5, "Tony": 6, "Sproles": 7, "Hunter": 8, "Fluitt": 9, "King": 10, "Evan": 11, "Thomas": 12},
             "2B": {"Luke": 1, "Becket": 2, "Evan": 3, "Dominic": 4, "Sproles": 5, "Nathan": 6, "Thomas": 7, "Tony": 8, "Jackie": 9, "Hunter": 10, "King": 11, "Fluitt": 12},
             "3B": {"Jackie": 1, "Nathan": 2, "Hunter": 3, "Tony": 4, "Fluitt": 5, "Dominic": 6, "Becket": 7, "King": 8, "Sproles": 9, "Luke": 10, "Thomas": 11, "Evan": 12},
             "1B": {"Hunter": 1, "King": 2, "Evan": 3, "Tony": 4, "Dominic": 5, "Sproles": 6, "Luke": 7, "Jackie": 8, "Fluitt": 9, "Nathan": 10, "Becket": 11, "Thomas": 12},
@@ -144,6 +144,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOMContentLoaded event fired");
             const theme = localStorage.getItem("theme") || "light";
             document.documentElement.setAttribute("data-theme", theme);
             populateOverrides();
@@ -235,10 +236,10 @@
             // Infield dirt, shifted slightly right
             ctx.fillStyle = "#d2b48c"; // Sienna for dirt
             ctx.beginPath();
-            ctx.moveTo(220, 100); // Shifted from 200
-            ctx.lineTo(320, 200); // Shifted from 300
-            ctx.lineTo(220, 300); // Shifted from 200
-            ctx.lineTo(120, 200); // Shifted from 100
+            ctx.moveTo(240, 100); // Shifted right by 20 from 220
+            ctx.lineTo(340, 200); // Shifted right by 20 from 320
+            ctx.lineTo(240, 300); // Shifted right by 20 from 220
+            ctx.lineTo(140, 200); // Shifted right by 20 from 120
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = "#8B4513"; // Brown outline
@@ -248,43 +249,43 @@
             // Pitcher's mound, shifted slightly right
             ctx.fillStyle = "#D3D3D3"; // Light gray for mound
             ctx.beginPath();
-            ctx.arc(220, 200, 30, 0, Math.PI * 2); // Shifted from 200
+            ctx.arc(240, 200, 30, 0, Math.PI * 2); // Shifted right by 20 from 220
             ctx.fill();
 
             // Bases, shifted slightly right
             ctx.fillStyle = "#FFFFFF";
             ctx.beginPath();
-            ctx.arc(220, 200, 8, 0, Math.PI * 2); // Home plate, shifted from 200
+            ctx.arc(240, 200, 8, 0, Math.PI * 2); // Home plate, shifted right by 20 from 220
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(120, 200, 8, 0, Math.PI * 2); // First base, shifted from 100
+            ctx.arc(140, 200, 8, 0, Math.PI * 2); // First base, shifted right by 20 from 120
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(220, 100, 8, 0, Math.PI * 2); // Second base, shifted from 200
+            ctx.arc(240, 100, 8, 0, Math.PI * 2); // Second base, shifted right by 20 from 220
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(320, 200, 8, 0, Math.PI * 2); // Third base, shifted from 300
+            ctx.arc(340, 200, 8, 0, Math.PI * 2); // Third base, shifted right by 20 from 320
             ctx.fill();
 
             const positionCoords = {
-                "P": { x: 220, y: 200 }, // Shifted from 200
-                "C": { x: 220, y: 320 }, // Shifted from 200
-                "1B": { x: 300, y: 220 }, // Shifted from 280
-                "2B": { x: 260, y: 170 }, // Shifted from 240
-                "3B": { x: 140, y: 220 }, // Shifted from 120
-                "SS": { x: 180, y: 160 }, // Shifted from 160
-                "LF": { x: 120, y: 100 }, // Shifted from 100
-                "CF": { x: 220, y: 50 },  // Shifted from 200
-                "RF": { x: 320, y: 100 }  // Shifted from 300
+                "P": { x: 240, y: 200 }, // Shifted right by 20 from 220
+                "C": { x: 240, y: 320 }, // Shifted right by 20 from 220
+                "1B": { x: 320, y: 220 }, // Shifted right by 20 from 300
+                "2B": { x: 280, y: 170 }, // Shifted right by 20 from 260
+                "3B": { x: 160, y: 220 }, // Shifted right by 20 from 140
+                "SS": { x: 200, y: 160 }, // Shifted right by 20 from 180
+                "LF": { x: 140, y: 100 }, // Shifted right by 20 from 120
+                "CF": { x: 240, y: 50 },  // Shifted right by 20 from 220
+                "RF": { x: 340, y: 100 }  // Shifted right by 20 from 320
             };
 
             ctx.fillStyle = "#000080"; // Navy for text
 
-            // Draw timestamp at top-right
+            // Draw timestamp at top-right, moved higher
             ctx.font = "10px Arial"; // Reduced from 12px
             ctx.textAlign = "right";
             ctx.fillStyle = "#000080"; // Navy for timestamp
-            ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
+            ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 20); // Moved up to y=20 from 40
 
             // Draw batting order on the far left with header and numbers, 1-12
             ctx.fillStyle = "#000080"; // Reset to navy for text
@@ -292,8 +293,8 @@
             ctx.font = "16px Arial"; // Reduced from 18px for better clarity
             ctx.fillText("Batting Order", 10, 10); // Header above batting order
             for (let i = 0; i < 12; i++) {
-                const player = battingOrder[i];
-                if (player && player !== "None") {
+                const player = battingOrder[i] || null;
+                if (player) {
                     const number = jerseyNumbers[player];
                     ctx.fillText(`${i + 1}: ${number} ${player}`, 10, 30 + i * 18); // Display with number
                 }
@@ -416,6 +417,10 @@
         function generateVisual() {
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
+            if (!ctx) {
+                console.error("Canvas context not available");
+                return;
+            }
             ctx.clearRect(0, 0, 400, 400);
             const ehOutSelections = [
                 document.getElementById("ehOut1").value,
