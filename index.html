@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 10:59 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:06 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -146,7 +146,7 @@
             overridesDiv.innerHTML = "";
             positions.forEach(pos => {
                 const div = document.createElement("div");
-                div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label><select id="${pos}-override" onchange="updateAllOptions()"><option value="">None</option></select>`;
+                div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label><select id="${pos}-override" onchange="updateAllOptions()"><option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}</select>`;
                 overridesDiv.appendChild(div);
             });
         }
@@ -156,7 +156,7 @@
             if (!ehOutSelectionsDiv) return;
             const selects = ehOutSelectionsDiv.getElementsByTagName("select");
             for (let select of selects) {
-                select.innerHTML = `<option value="">None</option>`;
+                select.innerHTML = `<option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}`;
             }
         }
 
@@ -171,7 +171,7 @@
         function initializePitcher() {
             const pitcherSelect = document.getElementById("pitcher");
             if (pitcherSelect) {
-                pitcherSelect.innerHTML = `<option value="">None</option>`;
+                pitcherSelect.innerHTML = `<option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}`;
             }
             updateAllOptions();
         }
@@ -205,11 +205,11 @@
                 values[select.id] = value;
             });
 
-            // Populate options for all selects
-            const updateSelects = (selects, availablePlayers) => {
+            // Populate defensive dropdowns (Pitcher and Overrides) with all players, excluding assigned
+            const updateDefensiveDropdowns = (selects) => {
                 selects.forEach(select => {
                     select.innerHTML = '<option value="">None</option>';
-                    availablePlayers.forEach(player => {
+                    players.forEach(player => {
                         if (!assignedPlayers.has(player) || values[select.id] === player) {
                             const option = document.createElement("option");
                             option.value = player;
@@ -223,30 +223,31 @@
                     }
                 });
             };
+            updateDefensiveDropdowns([document.getElementById("pitcher")]);
+            updateDefensiveDropdowns(positionOverrides);
 
-            const sortedPlayers = players.slice().sort();
-            updateSelects(battingSelects, sortedPlayers);
-            updateSelects(positionOverrides, sortedPlayers);
-            updateSelects(ehOutSelects, sortedPlayers);
-
-            const pitcherSelect = document.getElementById("pitcher");
-            if (pitcherSelect) {
-                pitcherSelect.innerHTML = '<option value="">None</option>';
-                sortedPlayers.forEach(player => {
-                    if (!assignedPlayers.has(player) || values[pitcherSelect.id] === player) {
-                        const option = document.createElement("option");
-                        option.value = player;
-                        option.text = player;
-                        pitcherSelect.appendChild(option);
+            // Populate EH/OUT dropdowns with all players, excluding assigned
+            const updateEhOutDropdowns = (selects) => {
+                selects.forEach(select => {
+                    select.innerHTML = '<option value="">None</option>';
+                    players.forEach(player => {
+                        if (!assignedPlayers.has(player) || values[select.id] === player) {
+                            const option = document.createElement("option");
+                            option.value = player;
+                            option.text = player;
+                            select.appendChild(option);
+                        }
+                    });
+                    if (values[select.id] && values[select.id] !== "None") {
+                        select.value = values[select.id];
+                        if (!select.value) select.value = "";
                     }
                 });
-                if (values[pitcherSelect.id] && values[pitcherSelect.id] !== "None") {
-                    pitcherSelect.value = values[pitcherSelect.id];
-                    if (!pitcherSelect.value) pitcherSelect.value = "";
-                }
-            }
+            };
+            updateEhOutDropdowns(ehOutSelects);
 
-            // Update batting order dropdowns with numbers and names
+            // Populate batting order dropdowns with numbers and names, sorted alphabetically
+            const sortedPlayers = players.slice().sort();
             const updateBattingDropdowns = (selects) => {
                 selects.forEach(select => {
                     select.innerHTML = '<option value="">None</option>';
