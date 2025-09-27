@@ -57,37 +57,37 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:06 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:11 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
             <table>
-                <tr><th>1</th><td><select id="batting1" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>2</th><td><select id="batting2" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>3</th><td><select id="batting3" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>4</th><td><select id="batting4" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>5</th><td><select id="batting5" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>6</th><td><select id="batting6" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>7</th><td><select id="batting7" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>8</th><td><select id="batting8" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>9</th><td><select id="batting9" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>10</th><td><select id="batting10" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>11</th><td><select id="batting11" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>12</th><td><select id="batting12" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>1</th><td><select id="batting1" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>2</th><td><select id="batting2" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>3</th><td><select id="batting3" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>4</th><td><select id="batting4" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>5</th><td><select id="batting5" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>6</th><td><select id="batting6" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>7</th><td><select id="batting7" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>8</th><td><select id="batting8" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>9</th><td><select id="batting9" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>10</th><td><select id="batting10" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>11</th><td><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>12</th><td><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
             </table>
             <button onclick="generateBattingOrder()">Generate Batting Order</button>
         </div></div>
         <div class="section">
             <label for="pitcher">Select Pitcher:</label>
-            <select id="pitcher" onchange="updateAllOptions()">
+            <select id="pitcher" onchange="updateDefensiveOptions()">
                 <option value="">None</option>
             </select>
         </div>
         <div class="section"><h3>Overrides (Optional)</h3><div id="overrides"></div></div>
         <div class="section"><h3>EH / OUT Selections (Optional)</h3><div id="ehOutSelections">
-            <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1" onchange="updateAllOptions()"><option value="">None</option></select></div>
-            <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2" onchange="updateAllOptions()"><option value="">None</option></select></div>
-            <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3" onchange="updateAllOptions()"><option value="">None</option></select></div>
+            <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1" onchange="updateDefensiveOptions()"><option value="">None</option></select></div>
+            <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2" onchange="updateDefensiveOptions()"><option value="">None</option></select></div>
+            <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3" onchange="updateDefensiveOptions()"><option value="">None</option></select></div>
         </div></div>
         <button onclick="generateLineup()">Generate Lineup</button>
         <div id="output"></div>
@@ -137,7 +137,8 @@
             populateEhOutSelections();
             initializeBattingOptions();
             initializePitcher();
-            updateAllOptions(); // Initial population of options
+            updateBattingOptions(); // Initialize batting options separately
+            updateDefensiveOptions(); // Initialize defensive options separately
         });
 
         function populateOverrides() {
@@ -146,9 +147,10 @@
             overridesDiv.innerHTML = "";
             positions.forEach(pos => {
                 const div = document.createElement("div");
-                div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label><select id="${pos}-override" onchange="updateAllOptions()"><option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}</select>`;
+                div.innerHTML = `<label for="${pos}-override">${pos} Override (optional):</label><select id="${pos}-override" onchange="updateDefensiveOptions()"><option value="">None</option></select>`;
                 overridesDiv.appendChild(div);
             });
+            updateDefensiveOptions();
         }
 
         function populateEhOutSelections() {
@@ -156,8 +158,9 @@
             if (!ehOutSelectionsDiv) return;
             const selects = ehOutSelectionsDiv.getElementsByTagName("select");
             for (let select of selects) {
-                select.innerHTML = `<option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}`;
+                select.innerHTML = `<option value="">None</option>`;
             }
+            updateDefensiveOptions();
         }
 
         function initializeBattingOptions() {
@@ -165,107 +168,124 @@
             battingSelects.forEach(select => {
                 select.innerHTML = `<option value="">None</option>`;
             });
-            updateAllOptions();
+            updateBattingOptions();
         }
 
         function initializePitcher() {
             const pitcherSelect = document.getElementById("pitcher");
             if (pitcherSelect) {
-                pitcherSelect.innerHTML = `<option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}`;
+                pitcherSelect.innerHTML = `<option value="">None</option>`;
             }
-            updateAllOptions();
+            updateDefensiveOptions();
         }
 
-        function updateAllOptions() {
-            const assignedPlayers = new Set();
-            const values = {};
-
-            // Collect assigned players
-            const pitcher = document.getElementById("pitcher").value;
-            if (pitcher && pitcher !== "None") assignedPlayers.add(pitcher);
-
+        function updateBattingOptions() {
             const battingSelects = document.querySelectorAll('[id^="batting"]');
+            const battingAssignments = {};
+            const assignedPlayers = new Set();
+
+            // Collect current batting assignments
             battingSelects.forEach(select => {
                 const value = select.value;
-                if (value && value !== "None") assignedPlayers.add(value);
-                values[select.id] = value;
+                if (value && value !== "None") {
+                    assignedPlayers.add(value);
+                }
+                battingAssignments[select.id] = value;
             });
+
+            // Update batting dropdowns with numbers and names, sorted alphabetically
+            battingSelects.forEach(select => {
+                select.innerHTML = '<option value="">None</option>';
+                const sortedPlayers = players.slice().sort();
+                sortedPlayers.forEach(player => {
+                    const displayText = `${jerseyNumbers[player]} ${player}`;
+                    if (!battingAssignments[select.id] || battingAssignments[select.id] === player) {
+                        const option = document.createElement("option");
+                        option.value = player;
+                        option.text = displayText;
+                        select.appendChild(option);
+                    }
+                });
+                if (battingAssignments[select.id] && battingAssignments[select.id] !== "None") {
+                    select.value = battingAssignments[select.id];
+                    if (!select.value) select.value = "";
+                }
+            });
+        }
+
+        function updateDefensiveOptions() {
+            const defensiveAssignments = {};
+            const assignedPlayers = new Set();
+
+            // Collect current defensive assignments (pitcher, overrides, EH/OUT)
+            const pitcher = document.getElementById("pitcher").value;
+            if (pitcher && pitcher !== "None") assignedPlayers.add(pitcher);
 
             const positionOverrides = document.querySelectorAll('[id$="-override"]');
             positionOverrides.forEach(select => {
                 const value = select.value;
                 if (value && value !== "None") assignedPlayers.add(value);
-                values[select.id] = value;
+                defensiveAssignments[select.id] = value;
             });
 
             const ehOutSelects = document.querySelectorAll('[id^="ehOut"]');
             ehOutSelects.forEach(select => {
                 const value = select.value;
                 if (value && value !== "None") assignedPlayers.add(value);
-                values[select.id] = value;
+                defensiveAssignments[select.id] = value;
             });
 
-            // Populate defensive dropdowns (Pitcher and Overrides) with all players, excluding assigned
-            const updateDefensiveDropdowns = (selects) => {
-                selects.forEach(select => {
-                    select.innerHTML = '<option value="">None</option>';
-                    players.forEach(player => {
-                        if (!assignedPlayers.has(player) || values[select.id] === player) {
-                            const option = document.createElement("option");
-                            option.value = player;
-                            option.text = player;
-                            select.appendChild(option);
-                        }
-                    });
-                    if (values[select.id] && values[select.id] !== "None") {
-                        select.value = values[select.id];
-                        if (!select.value) select.value = "";
+            // Update pitcher dropdown
+            const pitcherSelect = document.getElementById("pitcher");
+            if (pitcherSelect) {
+                pitcherSelect.innerHTML = '<option value="">None</option>';
+                players.forEach(player => {
+                    if (!assignedPlayers.has(player) || defensiveAssignments[pitcherSelect.id] === player) {
+                        const option = document.createElement("option");
+                        option.value = player;
+                        option.text = player;
+                        pitcherSelect.appendChild(option);
                     }
                 });
-            };
-            updateDefensiveDropdowns([document.getElementById("pitcher")]);
-            updateDefensiveDropdowns(positionOverrides);
+                if (defensiveAssignments[pitcherSelect.id] && defensiveAssignments[pitcherSelect.id] !== "None") {
+                    pitcherSelect.value = defensiveAssignments[pitcherSelect.id];
+                    if (!pitcherSelect.value) pitcherSelect.value = "";
+                }
+            }
 
-            // Populate EH/OUT dropdowns with all players, excluding assigned
-            const updateEhOutDropdowns = (selects) => {
-                selects.forEach(select => {
-                    select.innerHTML = '<option value="">None</option>';
-                    players.forEach(player => {
-                        if (!assignedPlayers.has(player) || values[select.id] === player) {
-                            const option = document.createElement("option");
-                            option.value = player;
-                            option.text = player;
-                            select.appendChild(option);
-                        }
-                    });
-                    if (values[select.id] && values[select.id] !== "None") {
-                        select.value = values[select.id];
-                        if (!select.value) select.value = "";
+            // Update position override dropdowns
+            positionOverrides.forEach(select => {
+                select.innerHTML = '<option value="">None</option>';
+                players.forEach(player => {
+                    if (!assignedPlayers.has(player) || defensiveAssignments[select.id] === player) {
+                        const option = document.createElement("option");
+                        option.value = player;
+                        option.text = player;
+                        select.appendChild(option);
                     }
                 });
-            };
-            updateEhOutDropdowns(ehOutSelects);
+                if (defensiveAssignments[select.id] && defensiveAssignments[select.id] !== "None") {
+                    select.value = defensiveAssignments[select.id];
+                    if (!select.value) select.value = "";
+                }
+            });
 
-            // Populate batting order dropdowns with numbers and names, sorted alphabetically
-            const sortedPlayers = players.slice().sort();
-            const updateBattingDropdowns = (selects) => {
-                selects.forEach(select => {
-                    select.innerHTML = '<option value="">None</option>';
-                    sortedPlayers.forEach(player => {
-                        if (!assignedPlayers.has(player) || values[select.id] === player) {
-                            const option = document.createElement("option");
-                            option.value = player;
-                            option.text = `${jerseyNumbers[player]} ${player}`;
-                            select.appendChild(option);
-                        }
-                    });
-                    if (values[select.id] && values[select.id] !== "None") {
-                        select.value = values[select.id];
-                        if (!select.value) select.value = "";
+            // Update EH/OUT dropdowns
+            ehOutSelects.forEach(select => {
+                select.innerHTML = '<option value="">None</option>';
+                players.forEach(player => {
+                    if (!assignedPlayers.has(player) || defensiveAssignments[select.id] === player) {
+                        const option = document.createElement("option");
+                        option.value = player;
+                        option.text = player;
+                        select.appendChild(option);
                     }
                 });
-            };
-            updateBattingDropdowns(battingSelects);
+                if (defensiveAssignments[select.id] && defensiveAssignments[select.id] !== "None") {
+                    select.value = defensiveAssignments[select.id];
+                    if (!select.value) select.value = "";
+                }
+            });
         }
 
         function getBestPlayer(position, assignedPlayers, availablePlayers) {
