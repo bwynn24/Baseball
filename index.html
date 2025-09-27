@@ -57,23 +57,23 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 10:42 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 10:59 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
             <table>
-                <tr><th>1</th><td><select id="batting1" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>2</th><td><select id="batting2" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>3</th><td><select id="batting3" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>4</th><td><select id="batting4" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>5</th><td><select id="batting5" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>6</th><td><select id="batting6" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>7</th><td><select id="batting7" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>8</th><td><select id="batting8" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>9</th><td><select id="batting9" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>10</th><td><select id="batting10" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>11</th><td><select id="batting11" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
-                <tr><th>12</th><td><select id="batting12" onchange="updateBattingOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>1</th><td><select id="batting1" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>2</th><td><select id="batting2" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>3</th><td><select id="batting3" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>4</th><td><select id="batting4" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>5</th><td><select id="batting5" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>6</th><td><select id="batting6" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>7</th><td><select id="batting7" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>8</th><td><select id="batting8" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>9</th><td><select id="batting9" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>10</th><td><select id="batting10" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>11</th><td><select id="batting11" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
+                <tr><th>12</th><td><select id="batting12" onchange="updateAllOptions()"><option value="">None</option></select></td></tr>
             </table>
             <button onclick="generateBattingOrder()">Generate Batting Order</button>
         </div></div>
@@ -96,6 +96,20 @@
     </div>
     <script>
         const players = ["Becket", "Dominic", "Evan", "Fluitt", "Hunter", "Jackie", "King", "Luke", "Nathan", "Sproles", "Thomas", "Tony"];
+        const jerseyNumbers = {
+            "Becket": 9,
+            "Dominic": 8,
+            "Evan": 5,
+            "Fluitt": 23,
+            "Hunter": 24,
+            "Jackie": 16,
+            "King": 7,
+            "Luke": 10,
+            "Nathan": 17,
+            "Sproles": 3,
+            "Thomas": 1,
+            "Tony": 0
+        };
         const rankings = {
             "P": {"Nathan": 1, "Luke": 2, "Hunter": 3, "Dominic": 4, "King": 5, "Becket": 6, "Jackie": 7, "Tony": 8, "Sproles": 9, "Fluitt": 10, "Evan": 11, "Thomas": 12},
             "C": {"Jackie": 1, "Nathan": 2, "Dominic": 3, "Tony": 4, "Luke": 5, "Fluitt": 6, "Becket": 7, "Thomas": 8, "Sproles": 9, "Evan": 10, "King": 11, "Hunter": 12},
@@ -231,6 +245,26 @@
                     if (!pitcherSelect.value) pitcherSelect.value = "";
                 }
             }
+
+            // Update batting order dropdowns with numbers and names
+            const updateBattingDropdowns = (selects) => {
+                selects.forEach(select => {
+                    select.innerHTML = '<option value="">None</option>';
+                    sortedPlayers.forEach(player => {
+                        if (!assignedPlayers.has(player) || values[select.id] === player) {
+                            const option = document.createElement("option");
+                            option.value = player;
+                            option.text = `${jerseyNumbers[player]} ${player}`;
+                            select.appendChild(option);
+                        }
+                    });
+                    if (values[select.id] && values[select.id] !== "None") {
+                        select.value = values[select.id];
+                        if (!select.value) select.value = "";
+                    }
+                });
+            };
+            updateBattingDropdowns(battingSelects);
         }
 
         function getBestPlayer(position, assignedPlayers, availablePlayers) {
@@ -305,14 +339,15 @@
             ctx.fillStyle = "#000080"; // Navy for timestamp
             ctx.fillText(`${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`, 380, 40);
 
-            // Draw batting order on the far left with header
+            // Draw batting order on the far left with header and numbers
             ctx.fillStyle = "#000080"; // Reset to navy for text
             ctx.textAlign = "left";
             ctx.font = "16px Arial"; // Reduced from 18px for better clarity
             ctx.fillText("Batting Order", 10, 10); // Header above batting order
             battingOrder.forEach((player, index) => {
                 if (player && player !== "None") {
-                    ctx.fillText(`${index + 1}: ${player}`, 10, 30 + index * 18); // Adjusted spacing
+                    const number = jerseyNumbers[player];
+                    ctx.fillText(`${number}: ${player}`, 10, 30 + index * 18); // Display with number
                 }
             });
             ctx.textAlign = "center";
@@ -412,7 +447,8 @@
             battingSelects.forEach((select, index) => {
                 const player = select.value;
                 if (player && player !== "None") {
-                    order += `<p>${index + 1}: ${player}</p>`;
+                    const number = jerseyNumbers[player];
+                    order += `<p>${number}: ${player}</p>`;
                 }
             });
             if (order) {
