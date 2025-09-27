@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 11:38 PM CDT, Friday, September 26, 2025</div>
+    <div class="timestamp">Last Logic Update: 11:51 PM CDT, Friday, September 26, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -97,9 +97,9 @@
         </div>
         <div class="section"><h3>Overrides (Optional)</h3><div id="overrides"></div></div>
         <div class="section"><h3>EH / OUT Selections (Optional)</h3><div id="ehOutSelections">
-            <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1" onchange="generateLineup()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2" onchange="generateLineup()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
-            <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3" onchange="generateLineup()"><option value="">None</option>${players.map(p=>`<option value="${p}">${p}</option>`).join("")}</select></div>
+            <div><label for="ehOut1">EH / OUT 1:</label><select id="ehOut1" onchange="generateLineup()"><option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}</select></div>
+            <div><label for="ehOut2">EH / OUT 2:</label><select id="ehOut2" onchange="generateLineup()"><option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}</select></div>
+            <div><label for="ehOut3">EH / OUT 3:</label><select id="ehOut3" onchange="generateLineup()"><option value="">None</option>${players.map(p => `<option value="${p}">${p}</option>`).join("")}</select></div>
         </div></div>
         <button onclick="generateLineup()">Generate Lineup</button>
         <div id="output"></div>
@@ -134,6 +134,7 @@
             "RF": {"Sproles": 1, "King": 2, "Thomas": 3, "Nathan": 4, "Luke": 5, "Dominic": 6, "Jackie": 7, "Fluitt": 8, "Tony": 9, "Becket": 10, "Hunter": 11, "Evan": 12}
         };
         const positions = ["P", "C", "SS", "1B", "3B", "2B", "CF", "LF", "RF"];
+        let lineup = {}; // Global variable to store the lineup for visual generation
 
         function toggleTheme() {
             const theme = document.documentElement.getAttribute("data-theme");
@@ -366,6 +367,9 @@
                     }
                 });
 
+                // Store the lineup globally for visual generation
+                window.lineup = lineup;
+
                 output.innerHTML = "<h3>Lineup:</h3>";
                 for (const [pos, player] of Object.entries(lineup)) {
                     output.innerHTML += `<p>${pos}: ${player}</p>`;
@@ -401,7 +405,6 @@
         }
 
         function generateVisual() {
-            generateLineup();
             const canvas = document.getElementById("fieldCanvas");
             const ctx = canvas.getContext("2d");
             ctx.clearRect(0, 0, 400, 400);
@@ -411,7 +414,7 @@
                 document.getElementById("ehOut3").value
             ].filter(player => player && player !== "None");
             const battingOrder = Array.from(document.querySelectorAll('.batting-order select')).map(select => select.value).filter(val => val !== "None");
-            drawBaseballDiamond(ctx, lineup, ehOutSelections, battingOrder);
+            drawBaseballDiamond(ctx, window.lineup, ehOutSelections, battingOrder);
         }
     </script>
 </body>
