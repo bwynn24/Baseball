@@ -57,7 +57,7 @@
 </head>
 <body>
     <h1>Baseball Optimizer</h1>
-    <div class="timestamp">Last Logic Update: 12:37 AM CDT, Saturday, September 27, 2025</div>
+    <div class="timestamp">Last Logic Update: 10:26 PM CDT, Saturday, September 27, 2025</div>
     <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     <div class="container">
         <div class="section batting-order"><h3>Batting Order</h3><div>
@@ -103,8 +103,9 @@
         </div></div>
         <button onclick="generateLineup()">Generate Lineup</button>
         <div id="output"></div>
+        <div class="section"><button onclick="generateVisual()">Generate Visual</button></div> <!-- Moved above the visual -->
         <canvas id="fieldCanvas" width="400" height="400"></canvas>
-        <div class="section"><button onclick="generateVisual()">Generate Visual</button></div>
+        <div class="section"></div> <!-- Placeholder to maintain spacing -->
     </div>
     <script>
         const players = ["Hunter", "Luke", "Nathan", "Evan", "Sproles", "Fluitt", "Thomas", "Tony", "Jackie", "King", "Dominic", "Becket"];
